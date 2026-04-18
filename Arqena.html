@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konekta · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0e10;
+  --surface:#16161a;
+  --surface2:#1e1e24;
+  --surface3:#26262e;
+  --border:rgba(255,255,255,0.06);
+  --border-md:rgba(255,255,255,0.11);
+  --text:#f0eef8;
+  --text2:#8a8899;
+  --text3:#4a4a5a;
+  --accent:#7c5cfc;
+  --accent2:#00d4aa;
+  --amber:#f0a429;
+  --blue:#4da6ff;
+  --red:#ff5e5e;
+  --r:8px;
+  --r-sm:5px;
+  --r-lg:12px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+.shell{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:12px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:18px;height:18px;}
+.logo-name{font-size:15px;font-weight:600;letter-spacing:-0.01em;}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.upload-btn{font-size:12px;background:var(--surface2);border:0.5px solid var(--border-md);border-radius:var(--r-sm);padding:6px 12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit;}
+.upload-btn:hover{color:var(--text);border-color:var(--accent);background:var(--surface3);}
+.upload-btn input{display:none;}
+
+/* CONTROL BAR */
+.ctrl-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:10px 14px;margin-bottom:8px;flex-wrap:wrap;}
+.ctrl-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);flex-shrink:0;margin-right:4px;font-family:"DM Mono",monospace;}
+.hosp-pills{display:flex;gap:5px;flex-wrap:wrap;flex:1;}
+.hp{font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;border:0.5px solid var(--border-md);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
+.hp:hover{border-color:var(--accent);color:var(--text);}
+.hp.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.hp.all.active{background:var(--surface3);border-color:var(--border-md);color:var(--text);}
+.cmp-btn{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border-md);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
+.cmp-btn:hover{border-color:var(--blue);color:var(--text);}
+.cmp-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.pp-row{display:flex;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:2px;gap:2px;}
+.pp{font-size:11px;font-weight:500;padding:4px 10px;border:none;border-radius:4px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit;}
+.pp:hover{color:var(--text);}
+.pp.active{background:var(--surface3);color:var(--text);box-shadow:0 0 0 0.5px var(--border-md);}
+
+/* PERIOD LABEL */
+.period-lbl{font-size:11px;color:var(--text3);margin-bottom:1.5rem;font-family:"DM Mono",monospace;letter-spacing:.02em;}
+
+/* KPI STRIP */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1.25rem;}
+.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem 1.125rem;transition:border-color .15s;}
+.kpi:hover{border-color:var(--border-md);}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px;font-family:"DM Mono",monospace;}
+.kpi-val{font-size:28px;font-weight:600;line-height:1;letter-spacing:-0.02em;}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:5px;}
+.up{color:var(--accent2);}
+.dn{color:var(--red);}
+.acc{color:var(--accent);}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.g31{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:640px){.g2,.g31{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.375rem;transition:border-color .15s;}
+.card-ttl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:16px;font-family:"DM Mono",monospace;}
+.chart-wrap{position:relative;}
+
+/* INSIGHT BAR */
+.insight{background:var(--surface);border:0.5px solid var(--border);border-left:2px solid var(--accent2);border-radius:var(--r);padding:.875rem 1.125rem;margin-bottom:1.25rem;font-size:13px;color:var(--text2);}
+.insight strong{color:var(--text);font-weight:500;}
+
+/* HOSPITAL CARDS */
+.hcard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.375rem;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
+.hcard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .18s;}
+.hcard:hover{border-color:var(--border-md);transform:translateY(-1px);}
+.hcard:hover::before{opacity:1;}
+.hcard-name{font-size:17px;font-weight:600;letter-spacing:-0.01em;margin-bottom:2px;}
+.hcard-sub{font-size:11px;color:var(--text3);margin-bottom:16px;}
+.hcard-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.hcard-metric-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:4px;font-family:"DM Mono",monospace;}
+.hcard-metric-val{font-size:19px;font-weight:600;letter-spacing:-0.01em;}
+.open-arrow{font-size:11px;color:var(--text3);position:absolute;top:1.25rem;right:1.375rem;transition:color .15s;}
+.hcard:hover .open-arrow{color:var(--accent2);}
+
+/* TABLE */
+.tcard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1rem;}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:0.5px solid var(--border);}
+.tbar-ttl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-family:"DM Mono",monospace;}
+select{font-size:12px;padding:4px 8px;border-radius:var(--r-sm);border:0.5px solid var(--border-md);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:inherit;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{padding:8px 16px;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:0.5px solid var(--border);white-space:nowrap;font-family:"DM Mono",monospace;}
+tbody td{padding:10px 16px;border-bottom:0.5px solid var(--border);color:var(--text);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .1s;}
+tbody tr:hover td{background:var(--surface2);}
+.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"DM Mono",monospace;}
+
+/* BAR */
+.bar-bg{background:var(--surface3);border-radius:3px;height:4px;}
+.bar-fill{height:4px;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+
+/* RANK NUM */
+.rank{font-size:10px;color:var(--text3);min-width:18px;font-family:"DM Mono",monospace;}
+
+/* EMPTY */
+.empty{padding:3rem;text-align:center;color:var(--text3);font-size:13px;}
+
+/* FOOTER */
+.footer{margin-top:3rem;padding-top:1rem;border-top:0.5px solid var(--border);font-size:11px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;font-family:"DM Mono",monospace;}
+
+/* FADE IN */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade{animation:fadeUp .25s ease both;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none">
+          <circle cx="5.5" cy="9" r="3.5" fill="white" opacity="0.95"/>
+          <circle cx="13" cy="5" r="2.5" fill="white" opacity="0.7"/>
+          <circle cx="13" cy="13" r="2.5" fill="white" opacity="0.7"/>
+          <line x1="8.8" y1="7.8" x2="10.7" y2="6.2" stroke="white" stroke-width="1.2"/>
+          <line x1="8.8" y1="10.2" x2="10.7" y2="11.8" stroke="white" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-name">Konekta</div>
+        <div class="logo-sub">Internal Operations</div>
+      </div>
+    </div>
+    <label class="upload-btn">⬆ Upload export<input type="file" accept=".csv" onchange="handleFile(event)"></label>
+  </div>
+
+  <div class="ctrl-bar">
+    <span class="ctrl-label">Hospital</span>
+    <div class="hosp-pills" id="hospPills"></div>
+    <button class="cmp-btn" id="cmpBtn" onclick="toggleCompare()">Compare ↔</button>
+    <div class="pp-row">
+      <button class="pp" onclick="setPeriod(7,this)">7d</button>
+      <button class="pp" onclick="setPeriod(30,this)">30d</button>
+      <button class="pp" onclick="setPeriod(90,this)">90d</button>
+      <button class="pp" onclick="setPeriod(180,this)">6m</button>
+      <button class="pp active" onclick="setPeriod(0,this)">All</button>
+    </div>
+  </div>
+
+  <div class="period-lbl" id="periodLbl"></div>
+  <div id="main" class="fade"></div>
+
+  <div class="footer">
+    <span>Konekta · Arqena AB</span>
+    <span id="footerDate"></span>
+  </div>
+</div>
+
+<script>
+const RAW=[
+["2025-12-02","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,126],
+["2025-12-02","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,126],
+["2025-12-01","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,126],
+["2025-12-01","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,126],
+["2025-12-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,4,133],
+["2025-12-02","LASERNA","Vetsia","Spain",1,null,4,134],
+["2025-12-03","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,135],
+["2025-12-03","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,136],
+["2025-12-05","CV LA AVANZADA","Vetsia","Spain",1,null,4,137],
+["2025-12-03","CV LA AVANZADA","Vetsia","Spain",1,null,4,137],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,1,138],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,1,138],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,1,138],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,1,138],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,1,138],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,5,140],
+["2025-12-03","RETRIEVER","Vetsia","Spain",1,null,4,142],
+["2025-12-03","CV LA AVANZADA","Vetsia","Spain",1,null,13,143],
+["2025-12-04","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,144],
+["2026-01-02","CV LA AVANZADA","Vetsia","Spain",1,null,26,145],
+["2026-01-02","CV LA AVANZADA","Vetsia","Spain",1,null,26,145],
+["2025-12-17","CV LA AVANZADA","Vetsia","Spain",1,null,26,145],
+["2025-12-04","CV LA AVANZADA","Vetsia","Spain",1,null,26,145],
+["2025-12-03","CV LA AVANZADA","Vetsia","Spain",1,null,26,145],
+["2025-12-04","LASERNA","Vetsia","Spain",1,null,12,146],
+["2025-12-03","LASERNA","Vetsia","Spain",1,null,12,146],
+["2025-12-04","VETSIA - Diagnstico por la imagen","Vetsia","Spain",1,null,2,147],
+["2025-12-04","CV. GRIONVET","Vetsia","Spain",1,null,5,149],
+["2025-12-09","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,150],
+["2025-12-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,150],
+["2025-12-05","C.V.OPORTO","Vetsia","Spain",1,null,4,153],
+["2025-12-05","CV NORIVET","Vetsia","Spain",1,null,7,154],
+["2025-12-05","C.V.OPORTO","Vetsia","Spain",1,null,5,155],
+["2025-12-05","CV NORIVET","Vetsia","Spain",1,null,2,157],
+["2025-12-09","CV PARQUE OESTE","Vetsia","Spain",1,null,3,159],
+["2025-12-10","C.V. EL RESTON","Vetsia","Spain",1,null,5,160],
+["2025-12-10","C.V. EL RESTON","Vetsia","Spain",1,null,5,160],
+["2025-12-10","LASERNA","Vetsia","Spain",1,null,4,161],
+["2025-12-10","LASERNA","Vetsia","Spain",1,null,4,161],
+["2025-12-12","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,3,162],
+["2025-12-10","LASERNA","Vetsia","Spain",1,null,54,163],
+["2025-12-15","CV PARQUE OESTE","Vetsia","Spain",1,null,2,164],
+["2025-12-15","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,3,166],
+["2025-12-11","C.V.OPORTO","Vetsia","Spain",1,null,11,168],
+["2025-12-11","C.V.OPORTO","Vetsia","Spain",1,null,11,168],
+["2025-12-12","C.V.OPORTO","Vetsia","Spain",1,null,5,170],
+["2025-12-12","RETRIEVER","Vetsia","Spain",1,null,5,171],
+["2025-12-15","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,10,173],
+["2025-12-15","CV LA AVANZADA","Vetsia","Spain",0,7.0,5,174],
+["2025-12-15","CV LA AVANZADA","Vetsia","Spain",0,7.0,5,174],
+["2025-12-15","CV LA AVANZADA","Vetsia","Spain",1,null,5,174],
+["2025-12-15","CV PARQUE OESTE","Vetsia","Spain",1,null,2,175],
+["2025-12-15","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,8,176],
+["2025-12-16","LOS PARQUES (GETAFE)","Vetsia","Spain",0,27.0,2,178],
+["2025-12-15","C.V. PUPPYGUAU","Vetsia","Spain",0,6.0,4,179],
+["2025-12-16","LASERNA","Vetsia","Spain",0,2.0,6,181],
+["2025-12-16","LASERNA","Vetsia","Spain",1,null,4,182],
+["2025-12-16","LASERNA","Vetsia","Spain",1,null,4,182],
+["2025-12-17","LASERNA","Vetsia","Spain",1,null,6,184],
+["2025-12-17","CV NORIVET","Vetsia","Spain",0,22.0,4,185],
+["2025-12-17","LASERNA","Vetsia","Spain",1,null,6,186],
+["2025-12-17","C.V. PUPPYGUAU","Vetsia","Spain",1,null,11,187],
+["2025-12-17","C.V. PUPPYGUAU","Vetsia","Spain",1,null,11,187],
+["2025-12-17","C.V. PUPPYGUAU","Vetsia","Spain",1,null,11,187],
+["2025-12-18","C.V. LA PAZ","Vetsia","Spain",1,null,2,190],
+["2026-01-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,15,191],
+["2025-12-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,15,191],
+["2025-12-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,15,191],
+["2025-12-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,12,192],
+["2025-12-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,12,192],
+["2025-12-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,12,192],
+["2025-12-19","CV NORIVET","Vetsia","Spain",1,null,4,193],
+["2025-12-19","CV NORIVET","Vetsia","Spain",1,null,4,193],
+["2025-12-19","C.V.OPORTO","Vetsia","Spain",1,null,3,194],
+["2025-12-22","C.V.OPORTO","Vetsia","Spain",1,null,6,195],
+["2025-12-22","C.V.OPORTO","Vetsia","Spain",1,null,6,195],
+["2025-12-20","C.V.OPORTO","Vetsia","Spain",1,null,6,195],
+["2025-12-20","C.V.OPORTO","Vetsia","Spain",1,null,6,195],
+["2025-12-20","C.V.OPORTO","Vetsia","Spain",1,null,6,195],
+["2025-12-22","C.V. LA PAZ","Vetsia","Spain",1,null,2,196],
+["2025-12-23","CV PARQUE OESTE","Vetsia","Spain",1,null,3,198],
+["2025-12-23","RETRIEVER","Vetsia","Spain",1,null,8,199],
+["2026-01-02","CV PARQUE OESTE","Vetsia","Spain",1,null,5,200],
+["2025-12-24","CV PARQUE OESTE","Vetsia","Spain",1,null,5,200],
+["2025-12-26","CV. GRIONVET","Vetsia","Spain",1,null,7,202],
+["2025-12-26","CV. GRIONVET","Vetsia","Spain",1,null,7,202],
+["2026-01-20","C.V. LA PAZ","Vetsia","Spain",1,null,2,203],
+["2025-12-27","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,204],
+["2025-12-27","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,204],
+["2025-12-27","C.V. PUPPYGUAU","Vetsia","Spain",1,null,6,204],
+["2025-12-30","C.V.OPORTO","Vetsia","Spain",1,null,7,205],
+["2025-12-27","C.V.OPORTO","Vetsia","Spain",1,null,7,205],
+["2025-12-27","C.V.OPORTO","Vetsia","Spain",1,null,7,205],
+["2025-12-30","C.V.OPORTO","Vetsia","Spain",1,null,3,208],
+["2025-12-30","C.V. EL RESTON","Vetsia","Spain",1,null,5,209],
+["2025-12-30","C.V. EL RESTON","Vetsia","Spain",1,null,5,209],
+["2025-12-31","C.V.OPORTO","Vetsia","Spain",1,null,3,210],
+["2026-01-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,5,213],
+["2026-01-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,5,213],
+["2026-01-02","LASERNA","Vetsia","Spain",1,null,6,214],
+["2026-01-03","C.V. PUPPYGUAU","Vetsia","Spain",0,5.0,3,216],
+["2026-01-03","CV. GRIONVET","Vetsia","Spain",1,null,5,217],
+["2026-01-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,219],
+["2026-01-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,219],
+["2026-01-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,5,220],
+["2026-01-07","CV PARQUE OESTE","Vetsia","Spain",1,null,5,225],
+["2026-01-07","CV PARQUE OESTE","Vetsia","Spain",0,6.0,3,226],
+["2026-01-08","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,227],
+["2026-01-08","CV PARQUE OESTE","Vetsia","Spain",0,13.0,3,229],
+["2026-01-08","LASERNA","Vetsia","Spain",1,null,2,231],
+["2026-01-08","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,233],
+["2026-01-08","CV PARQUE OESTE","Vetsia","Spain",0,13.0,2,234],
+["2026-01-12","RETRIEVER","Vetsia","Spain",1,null,2,235],
+["2026-01-09","C.V.OPORTO","Vetsia","Spain",1,null,3,238],
+["2026-01-12","RETRIEVER","Vetsia","Spain",1,null,2,240],
+["2026-01-10","C.V. PUPPYGUAU","Vetsia","Spain",1,null,4,241],
+["2026-01-10","CV PARQUE OESTE","Vetsia","Spain",0,4.0,2,242],
+["2026-01-12","CV PARQUE OESTE","Vetsia","Spain",1,null,4,243],
+["2026-01-12","CV PARQUE OESTE","Vetsia","Spain",1,null,4,243],
+["2026-01-12","CV PARQUE OESTE","Vetsia","Spain",1,null,4,246],
+["2026-01-13","C.V. LA PAZ","Vetsia","Spain",1,null,6,248],
+["2026-01-13","LASERNA","Vetsia","Spain",1,null,3,249],
+["2026-01-13","LASERNA","Vetsia","Spain",1,null,3,249],
+["2026-01-14","CV LA AVANZADA","Vetsia","Spain",0,14.0,3,251],
+["2026-01-14","C.V.OPORTO","Vetsia","Spain",1,null,3,255],
+["2026-01-14","C.V.OPORTO","Vetsia","Spain",1,null,3,255],
+["2026-01-14","CV LA AVANZADA","Vetsia","Spain",1,null,3,256],
+["2026-01-14","CV LA AVANZADA","Vetsia","Spain",1,null,3,256],
+["2026-01-14","CV LA AVANZADA","Vetsia","Spain",1,null,3,256],
+["2026-01-15","LASERNA","Vetsia","Spain",1,null,11,257],
+["2026-01-15","CV LA AVANZADA","Vetsia","Spain",1,null,5,259],
+["2026-01-16","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,261],
+["2026-01-16","C.V.OPORTO","Vetsia","Spain",1,null,1,262],
+["2026-01-17","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,263],
+["2026-01-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,264],
+["2026-01-19","C.V.OPORTO","Vetsia","Spain",1,null,2,265],
+["2026-01-19","C.V.OPORTO","Vetsia","Spain",1,null,2,265],
+["2026-01-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,6,266],
+["2026-01-19","CV PARQUE OESTE","Vetsia","Spain",1,null,3,267],
+["2026-01-19","C.V. PUPPYGUAU","Vetsia","Spain",1,null,4,268],
+["2026-01-19","LASERNA","Vetsia","Spain",0,3.0,5,269],
+["2026-01-20","CV LA AVANZADA","Vetsia","Spain",1,null,4,270],
+["2026-01-20","CV LA AVANZADA","Vetsia","Spain",1,null,4,270],
+["2026-01-20","LASERNA","Vetsia","Spain",1,null,4,271],
+["2026-01-20","C.V. LA PAZ","Vetsia","Spain",0,1.0,2,274],
+["2026-01-20","C.V. LA PAZ","Vetsia","Spain",1,null,2,275],
+["2026-01-21","CV LA AVANZADA","Vetsia","Spain",1,null,2,280],
+["2026-01-21","CV LA AVANZADA","Vetsia","Spain",1,null,2,280],
+["2026-01-21","CV LA AVANZADA","Vetsia","Spain",1,null,2,280],
+["2026-01-21","C.V. EL RESTON","Vetsia","Spain",1,null,2,281],
+["2026-01-21","C.V. EL RESTON","Vetsia","Spain",1,null,2,281],
+["2026-01-22","LASERNA","Vetsia","Spain",1,null,8,282],
+["2026-01-21","LASERNA","Vetsia","Spain",1,null,8,282],
+["2026-01-22","C.V. PUPPYGUAU","Vetsia","Spain",1,null,3,283],
+["2026-01-22","CV PARQUE OESTE","Vetsia","Spain",1,null,3,284],
+["2026-01-22","LASERNA","Vetsia","Spain",1,null,4,285],
+["2026-01-26","RETRIEVER","Vetsia","Spain",1,null,7,286],
+["2026-01-24","CV PARQUE OESTE","Vetsia","Spain",0,23.0,3,288],
+["2026-01-24","CV NORIVET","Vetsia","Spain",1,null,1,289],
+["2026-01-24","CV NORIVET","Vetsia","Spain",1,null,1,289],
+["2026-01-24","C.V.OPORTO","Vetsia","Spain",1,null,5,290],
+["2026-01-24","C.V.OPORTO","Vetsia","Spain",1,null,5,290],
+["2026-01-24","C.V.OPORTO","Vetsia","Spain",1,null,5,290],
+["2026-01-24","C.V.OPORTO","Vetsia","Spain",1,null,5,290],
+["2026-01-24","C.V. PUPPYGUAU","Vetsia","Spain",1,null,1,291],
+["2026-01-26","CV NORIVET","Vetsia","Spain",1,null,4,293],
+["2026-01-26","C.V. LA PAZ","Vetsia","Spain",1,null,8,294],
+["2026-01-27","C.V. LA PAZ","Vetsia","Spain",1,null,12,295],
+["2026-01-27","C.V. PUPPYGUAU","Vetsia","Spain",0,8.0,9,296],
+["2026-01-27","C.V. PUPPYGUAU","Vetsia","Spain",1,null,9,296],
+["2026-01-28","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,297],
+["2026-01-28","C.V. EL RESTON","Vetsia","Spain",1,null,4,298],
+["2026-01-28","C.V. EL RESTON","Vetsia","Spain",0,19.0,4,298],
+["2026-01-29","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,1.0,7,299],
+["2026-01-29","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,1.0,7,299],
+["2026-01-29","LASERNA","Vetsia","Spain",1,null,2,301],
+["2026-01-30","C.V. LA PAZ","Vetsia","Spain",1,null,7,303],
+["2026-01-30","C.V.OPORTO","Vetsia","Spain",1,null,5,304],
+["2026-01-30","C.V.OPORTO","Vetsia","Spain",1,null,5,304],
+["2026-01-30","LASERNA","Vetsia","Spain",1,null,10,305],
+["2026-01-31","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,306],
+["2026-01-31","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,306],
+["2026-02-02","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,5,308],
+["2026-02-02","RETRIEVER","Vetsia","Spain",1,null,4,309],
+["2026-02-02","RETRIEVER","Vetsia","Spain",0,4.0,4,309],
+["2026-02-03","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,6.0,3,310],
+["2026-02-03","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,1,311],
+["2026-02-03","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,312],
+["2026-02-03","LASERNA","Vetsia","Spain",1,null,8,313],
+["2026-02-03","LASERNA","Vetsia","Spain",1,null,8,313],
+["2026-02-04","CV PARQUE OESTE","Vetsia","Spain",0,7.0,3,314],
+["2026-02-06","LASERNA","Vetsia","Spain",1,null,4,315],
+["2026-02-06","LASERNA","Vetsia","Spain",1,null,4,316],
+["2026-02-06","C.V. EL RESTON","Vetsia","Spain",1,null,8,318],
+["2026-02-06","LASERNA","Vetsia","Spain",1,null,5,319],
+["2026-02-07","CV PARQUE OESTE","Vetsia","Spain",0,11.0,2,320],
+["2026-02-10","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,321],
+["2026-02-10","CV LA AVANZADA","Vetsia","Spain",1,null,4,322],
+["2026-02-10","CV LA AVANZADA","Vetsia","Spain",0,0.0,4,322],
+["2026-02-10","C.V. PUPPYGUAU","Vetsia","Spain",0,2.0,3,323],
+["2026-02-11","DK Õt Westland","Rijswijk","Netherlands",1,null,3,324],
+["2026-02-11","AniCura Het Overbosch","Rijswijk","Netherlands",0,2.0,4,325],
+["2026-02-13","DK SeghwaertÊ","Rijswijk","Netherlands",1,null,2,330],
+["2026-02-12","DK Delfland","Rijswijk","Netherlands",1,null,2,331],
+["2026-02-19","AniCura KennemerlandÊ","Rijswijk","Netherlands",1,null,1,332],
+["2026-02-11","LASERNA","Vetsia","Spain",1,null,7,333],
+["2026-02-11","LASERNA","Vetsia","Spain",1,null,1,334],
+["2026-02-11","CV LA AVANZADA","Vetsia","Spain",0,10.0,11,335],
+["2026-02-12","CV. GRIONVET","Vetsia","Spain",1,null,5,336],
+["2026-02-12","LASERNA","Vetsia","Spain",0,4.0,4,338],
+["2026-02-13","CV NORIVET","Vetsia","Spain",1,null,7,339],
+["2026-02-12","CV NORIVET","Vetsia","Spain",1,null,7,339],
+["2026-02-13","AniCura Dordrecht Stadspolders","Rijswijk","Netherlands",0,11.0,1,340],
+["2026-02-13","CV PARQUE OESTE","Vetsia","Spain",0,3.0,3,341],
+["2026-02-16","LASERNA","Vetsia","Spain",1,null,3,342],
+["2026-02-14","C.V.OPORTO","Vetsia","Spain",1,null,3,343],
+["2026-02-16","CV. GRIONVET","Vetsia","Spain",1,null,9,344],
+["2026-02-16","CV. GRIONVET","Vetsia","Spain",1,null,9,344],
+["2026-02-16","CV PARQUE OESTE","Vetsia","Spain",0,7.0,7,345],
+["2026-02-16","CV LA AVANZADA","Vetsia","Spain",1,null,2,346],
+["2026-02-17","DK de Perzikgaard","Rijswijk","Netherlands",1,null,2,349],
+["2026-02-17","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,0.0,2,350],
+["2026-02-17","CV. GRIONVET","Vetsia","Spain",1,null,5,351],
+["2026-02-17","CV. GRIONVET","Vetsia","Spain",1,null,5,351],
+["2026-02-18","RETRIEVER","Vetsia","Spain",0,6.0,6,352],
+["2026-02-18","LASERNA","Vetsia","Spain",1,null,4,354],
+["2026-02-19","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,1,355],
+["2026-02-20","AniCura Zoetermeer","Rijswijk","Netherlands",1,null,3,358],
+["2026-02-20","LOS PARQUES (GETAFE)","Vetsia","Spain",0,19.0,6,359],
+["2026-02-20","C.V. EL RESTON","Vetsia","Spain",1,null,4,360],
+["2026-02-20","C.V. EL RESTON","Vetsia","Spain",1,null,4,360],
+["2026-02-20","C.V. PUPPYGUAU","Vetsia","Spain",1,null,3,361],
+["2026-02-23","CV PARQUE OESTE","Vetsia","Spain",0,9.0,5,362],
+["2026-02-20","CV PARQUE OESTE","Vetsia","Spain",1,null,5,362],
+["2026-02-21","CV LA AVANZADA","Vetsia","Spain",1,null,1,363],
+["2026-02-21","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,4,364],
+["2026-02-21","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,4,364],
+["2026-02-24","LASERNA","Vetsia","Spain",1,null,8,365],
+["2026-02-23","LASERNA","Vetsia","Spain",1,null,8,365],
+["2026-02-23","C.V. EL RESTON","Vetsia","Spain",0,2.0,3,367],
+["2026-02-23","LASERNA","Vetsia","Spain",1,null,1,368],
+["2026-02-23","LASERNA","Vetsia","Spain",1,null,1,368],
+["2026-02-24","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,370],
+["2026-02-24","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,1,371],
+["2026-02-24","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,372],
+["2026-02-24","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,372],
+["2026-02-24","LASERNA","Vetsia","Spain",1,null,3,373],
+["2026-02-24","LASERNA","Vetsia","Spain",1,null,3,373],
+["2026-02-24","C.V.OPORTO","Vetsia","Spain",1,null,6,374],
+["2026-02-24","C.V.OPORTO","Vetsia","Spain",1,null,6,374],
+["2026-02-24","C.V.OPORTO","Vetsia","Spain",1,null,6,374],
+["2026-02-24","DK Voorburg","Rijswijk","Netherlands",1,null,3,375],
+["2026-02-24","CV PARQUE OESTE","Vetsia","Spain",0,8.0,5,376],
+["2026-02-25","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,377],
+["2026-02-25","CV. GRIONVET","Vetsia","Spain",1,null,6,378],
+["2026-02-25","CV. GRIONVET","Vetsia","Spain",1,null,6,378],
+["2026-02-25","CV. GRIONVET","Vetsia","Spain",1,null,6,378],
+["2026-02-25","CV PARQUE OESTE","Vetsia","Spain",0,8.0,3,380],
+["2026-03-04","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,381],
+["2026-02-27","C.V.OPORTO","Vetsia","Spain",1,null,9,383],
+["2026-02-27","C.V.OPORTO","Vetsia","Spain",1,null,9,383],
+["2026-02-26","C.V.OPORTO","Vetsia","Spain",0,0.0,9,383],
+["2026-02-27","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,3,384],
+["2026-02-27","LOS PARQUES (GETAFE)","Vetsia","Spain",0,7.0,2,385],
+["2026-02-27","CV. GRIONVET","Vetsia","Spain",1,null,3,386],
+["2026-02-27","CV. GRIONVET","Vetsia","Spain",1,null,3,388],
+["2026-02-27","LASERNA","Vetsia","Spain",0,6.0,8,389],
+["2026-02-27","LASERNA","Vetsia","Spain",1,null,8,389],
+["2026-02-28","LASERNA","Vetsia","Spain",1,null,3,390],
+["2026-02-28","LASERNA","Vetsia","Spain",1,null,3,390],
+["2026-03-19","CV PARQUE OESTE","Vetsia","Spain",1,null,3,392],
+["2026-03-02","CV PARQUE OESTE","Vetsia","Spain",0,2.0,3,392],
+["2026-03-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,4,393],
+["2026-03-03","CV LA AVANZADA","Vetsia","Spain",0,7.0,16,394],
+["2026-03-02","CV LA AVANZADA","Vetsia","Spain",0,8.0,16,394],
+["2026-03-26","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-26","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-04","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-03","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-03","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-03","CV LA AVANZADA","Vetsia","Spain",1,null,24,396],
+["2026-03-03","AniCura Drechtstreek s-Gravendeel","Rijswijk","Netherlands",1,null,2,397],
+["2026-03-03","RETRIEVER","Vetsia","Spain",0,7.0,3,399],
+["2026-03-04","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,400],
+["2026-03-04","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,401],
+["2026-03-04","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,402],
+["2026-03-04","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,403],
+["2026-03-05","C.V. PUPPYGUAU","Vetsia","Spain",1,null,9,406],
+["2026-03-04","C.V. PUPPYGUAU","Vetsia","Spain",1,null,9,406],
+["2026-03-04","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,8.0,7,408],
+["2026-03-05","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,412],
+["2026-03-05","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,414],
+["2026-03-05","C.V. PUPPYGUAU","Vetsia","Spain",1,null,2,414],
+["2026-03-05","LOS PARQUES (GETAFE)","Vetsia","Spain",0,12.0,6,415],
+["2026-03-05","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,3,416],
+["2026-03-05","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,418],
+["2026-03-05","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,419],
+["2026-03-05","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,420],
+["2026-03-05","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,421],
+["2026-03-05","C.V. EL RESTON","Vetsia","Spain",1,null,3,422],
+["2026-03-05","C.V. EL RESTON","Vetsia","Spain",1,null,3,422],
+["2026-03-06","CV PARQUE OESTE","Vetsia","Spain",0,5.0,4,423],
+["2026-03-06","CV PARQUE OESTE","Vetsia","Spain",1,null,1,424],
+["2026-03-06","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,3,425],
+["2026-03-06","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,426],
+["2026-03-06","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,427],
+["2026-03-06","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,429],
+["2026-03-06","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,430],
+["2026-03-07","CV PARQUE OESTE","Vetsia","Spain",1,null,2,433],
+["2026-03-09","CV. GRIONVET","Vetsia","Spain",1,null,14,437],
+["2026-03-09","CV. GRIONVET","Vetsia","Spain",1,null,14,437],
+["2026-03-09","C.V. EL RESTON","Vetsia","Spain",1,null,2,438],
+["2026-03-09","C.V. PUPPYGUAU","Vetsia","Spain",0,2.0,6,439],
+["2026-03-10","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,0.0,11,442],
+["2026-03-10","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,443],
+["2026-03-10","CV. GRIONVET","Vetsia","Spain",1,null,14,444],
+["2026-03-10","AniCura Drechtstreek Sterrenburg","Rijswijk","Netherlands",1,null,3,445],
+["2026-03-10","CV LA AVANZADA","Vetsia","Spain",1,null,2,446],
+["2026-03-10","CV LA AVANZADA","Vetsia","Spain",1,null,3,447],
+["2026-03-10","C.V. EL RESTON","Vetsia","Spain",1,null,6,448],
+["2026-03-10","C.V. EL RESTON","Vetsia","Spain",1,null,6,448],
+["2026-03-11","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,0.0,9,452],
+["2026-03-11","CV LA AVANZADA","Vetsia","Spain",1,null,2,453],
+["2026-03-11","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,1,454],
+["2026-03-11","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,457],
+["2026-03-12","C.V.OPORTO","Vetsia","Spain",1,null,3,459],
+["2026-03-12","DK Voorburg","Rijswijk","Netherlands",0,0.0,8,460],
+["2026-03-12","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,4,461],
+["2026-03-12","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,462],
+["2026-03-12","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,3,463],
+["2026-03-13","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,6,464],
+["2026-03-13","LASERNA","Vetsia","Spain",1,null,2,465],
+["2026-03-13","LASERNA","Vetsia","Spain",1,null,2,465],
+["2026-03-13","RETRIEVER","Vetsia","Spain",0,5.0,9,466],
+["2026-03-13","CV PARQUE OESTE","Vetsia","Spain",1,null,2,467],
+["2026-03-14","CV PARQUE OESTE","Vetsia","Spain",0,9.0,5,468],
+["2026-03-15","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,469],
+["2026-03-15","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,469],
+["2026-03-16","C.V.OPORTO","Vetsia","Spain",1,null,2,470],
+["2026-03-16","CV LA AVANZADA","Vetsia","Spain",1,null,5,471],
+["2026-03-16","CV LA AVANZADA","Vetsia","Spain",1,null,5,471],
+["2026-03-16","CV. GRIONVET","Vetsia","Spain",0,11.0,6,472],
+["2026-03-16","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,8.0,4,473],
+["2026-03-16","C.V. EL RESTON","Vetsia","Spain",1,null,3,474],
+["2026-03-17","DK SeghwaertÊ","Rijswijk","Netherlands",0,1.0,5,477],
+["2026-03-17","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,4,478],
+["2026-03-17","CV. GRIONVET","Vetsia","Spain",1,null,3,479],
+["2026-03-18","DK Õt Westland","Rijswijk","Netherlands",1,null,6,531],
+["2026-03-18","LASERNA","Vetsia","Spain",0,-1.0,7,532],
+["2026-03-18","C.V.OPORTO","Vetsia","Spain",1,null,3,533],
+["2026-03-18","C.V.OPORTO","Vetsia","Spain",1,null,3,533],
+["2026-03-18","DK Õt Westland","Rijswijk","Netherlands",0,9.0,10,534],
+["2026-03-18","LOS PARQUES (GETAFE)","Vetsia","Spain",0,19.0,3,537],
+["2026-03-18","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,538],
+["2026-03-18","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,538],
+["2026-03-18","CV LA AVANZADA","Vetsia","Spain",0,5.0,6,539],
+["2026-03-18","DK Voorburg","Rijswijk","Netherlands",0,1.0,3,540],
+["2026-03-18","RETRIEVER","Vetsia","Spain",0,1.0,3,544],
+["2026-03-19","LOS PARQUES (GETAFE)","Vetsia","Spain",0,5.0,2,548],
+["2026-03-19","C.V.OPORTO","Vetsia","Spain",1,null,4,549],
+["2026-03-19","RETRIEVER","Vetsia","Spain",0,4.0,4,550],
+["2026-03-20","DK de Perzikgaard","Rijswijk","Netherlands",1,null,4,552],
+["2026-03-20","C.V. LA PAZ","Vetsia","Spain",1,null,2,553],
+["2026-03-20","AniCura Het Overbosch","Rijswijk","Netherlands",1,null,2,554],
+["2026-03-20","RETRIEVER","Vetsia","Spain",1,null,4,555],
+["2026-03-21","RETRIEVER","Vetsia","Spain",1,null,6,556],
+["2026-03-21","C.V.OPORTO","Vetsia","Spain",1,null,1,557],
+["2026-03-21","C.V.OPORTO","Vetsia","Spain",1,null,1,557],
+["2026-03-21","C.V.OPORTO","Vetsia","Spain",1,null,1,557],
+["2026-03-21","C.V.OPORTO","Vetsia","Spain",1,null,1,557],
+["2026-03-21","C.V.OPORTO","Vetsia","Spain",1,null,1,557],
+["2026-03-27","CV PARQUE OESTE","Vetsia","Spain",1,null,4,558],
+["2026-03-21","CV PARQUE OESTE","Vetsia","Spain",0,4.0,4,558],
+["2026-03-23","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,560],
+["2026-03-23","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,561],
+["2026-03-23","LOS PARQUES (GETAFE)","Vetsia","Spain",0,4.0,3,562],
+["2026-03-23","RETRIEVER","Vetsia","Spain",1,null,6,563],
+["2026-03-23","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,565],
+["2026-03-23","CV PARQUE OESTE","Vetsia","Spain",0,1.0,8,566],
+["2026-03-23","C.V. EL RESTON","Vetsia","Spain",0,1.0,10,567],
+["2026-03-23","DK SeghwaertÊ","Rijswijk","Netherlands",0,4.0,6,568],
+["2026-03-24","C.V. PUPPYGUAU","Vetsia","Spain",0,15.0,5,570],
+["2026-03-24","C.V. PUPPYGUAU","Vetsia","Spain",0,2.0,6,573],
+["2026-03-24","AniCura Dierenkliniek Bossenbuurt","Rijswijk","Netherlands",1,null,2,574],
+["2026-03-24","CV LA AVANZADA","Vetsia","Spain",1,null,4,575],
+["2026-03-24","CV LA AVANZADA","Vetsia","Spain",0,15.0,3,577],
+["2026-03-24","DK SeghwaertÊ","Rijswijk","Netherlands",0,2.0,5,579],
+["2026-03-25","C.V.OPORTO","Vetsia","Spain",1,null,5,584],
+["2026-03-27","CV NORIVET","Vetsia","Spain",1,null,3,585],
+["2026-03-25","CV NORIVET","Vetsia","Spain",1,null,3,585],
+["2026-03-25","CV NORIVET","Vetsia","Spain",1,null,3,585],
+["2026-03-25","LASERNA","Vetsia","Spain",1,null,4,586],
+["2026-03-25","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,5.0,3,587],
+["2026-03-26","C.V. PUPPYGUAU","Vetsia","Spain",1,null,5,589],
+["2026-03-26","LASERNA","Vetsia","Spain",0,6.0,4,590],
+["2026-03-27","DK Õt Westland","Rijswijk","Netherlands",0,0.0,3,591],
+["2026-03-27","CV NORIVET","Vetsia","Spain",1,null,6,592],
+["2026-03-27","DK SeghwaertÊ","Rijswijk","Netherlands",0,11.0,4,595],
+["2026-03-27","C.V.OPORTO","Vetsia","Spain",1,null,5,596],
+["2026-03-28","C.V. LA PAZ","Vetsia","Spain",1,null,4,597],
+["2026-03-29","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,1.0,1,598],
+["2026-03-30","C.V. PUPPYGUAU","Vetsia","Spain",0,2.0,6,599],
+["2026-03-30","DK SeghwaertÊ","Rijswijk","Netherlands",0,2.0,3,600],
+["2026-03-30","CV NORIVET","Vetsia","Spain",0,-1.0,2,601],
+["2026-03-30","CV LA AVANZADA","Vetsia","Spain",1,null,3,602],
+["2026-03-30","C.V. EL RESTON","Vetsia","Spain",1,null,3,603],
+["2026-03-30","C.V. EL RESTON","Vetsia","Spain",0,8.0,3,603],
+["2026-03-31","LASERNA","Vetsia","Spain",1,null,2,604],
+["2026-03-31","CV NORIVET","Vetsia","Spain",1,null,2,601],
+["2026-03-31","CV LA AVANZADA","Vetsia","Spain",1,null,5,605],
+["2026-04-01","C.V.OPORTO","Vetsia","Spain",0,9.0,3,606],
+["2026-04-01","C.V.OPORTO","Vetsia","Spain",0,9.0,3,606],
+["2026-04-01","DK Õt Westland","Rijswijk","Netherlands",0,2.0,5,607],
+["2026-04-01","C.V. EL RESTON","Vetsia","Spain",1,null,8,610],
+["2026-04-01","C.V. EL RESTON","Vetsia","Spain",1,null,8,610],
+["2026-04-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,6.0,2,614],
+["2026-04-02","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,9.0,2,614],
+["2026-04-03","DK SeghwaertÊ","Rijswijk","Netherlands",1,null,8,615],
+["2026-04-03","DK Õt Westland","Rijswijk","Netherlands",0,0.0,3,616],
+["2026-04-06","C.V. EL RESTON","Vetsia","Spain",1,null,3,617],
+["2026-04-06","CV LA AVANZADA","Vetsia","Spain",1,null,6,618],
+["2026-04-06","CV LA AVANZADA","Vetsia","Spain",1,null,6,618],
+["2026-04-06","CV LA AVANZADA","Vetsia","Spain",0,4.0,6,619],
+["2026-04-06","C.V.OPORTO","Vetsia","Spain",1,null,1,620],
+["2026-04-06","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,0.0,6,621],
+["2026-04-06","C.V. EL RESTON","Vetsia","Spain",1,null,3,623],
+["2026-04-07","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,1,624],
+["2026-04-07","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,3,625],
+["2026-04-07","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,2,627],
+["2026-04-07","CV NORIVET","Vetsia","Spain",0,9.0,3,628],
+["2026-04-08","CV. GRIONVET","Vetsia","Spain",1,null,2,629],
+["2026-04-08","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,5,630],
+["2026-04-08","AniCura Het Overbosch","Rijswijk","Netherlands",0,5.0,8,631],
+["2026-04-08","LASERNA","Vetsia","Spain",0,9.0,4,632],
+["2026-04-08","DK Õt Westland","Rijswijk","Netherlands",0,2.0,4,633],
+["2026-04-08","CV LA AVANZADA","Vetsia","Spain",1,null,6,634],
+["2026-04-09","AniCura Estoril Hospital Veterinario","Vetsia","Spain",1,null,4,635],
+["2026-04-09","C.V. EL RESTON","Vetsia","Spain",1,null,4,636],
+["2026-04-09","LOS PARQUES (GETAFE)","Vetsia","Spain",1,null,2,637],
+["2026-04-10","AniCura Estoril Hospital Veterinario","Vetsia","Spain",0,0.0,2,638],
+["2026-04-10","CV NORIVET","Vetsia","Spain",1,null,1,643],
+["2026-04-10","DK de Perzikgaard","Rijswijk","Netherlands",0,0.0,1,644],
+["2026-04-11","CV. GRIONVET","Vetsia","Spain",1,null,3,645]
+];
+
+const EVENTS=RAW.map(r=>({date:new Date(r[0]),ds:r[0],clinic:r[1],hospital:r[2],region:r[3],lost:r[4],days:r[5],post:r[6]||null,caseId:r[7]}));
+const HOSPS=[...new Set(EVENTS.map(e=>e.hospital))].sort();
+const MAX_D=new Date(Math.max(...EVENTS.map(e=>e.date)));
+const HOSP_COLOR={'Vetsia':'var(--amber)','Rijswijk':'var(--blue)'};
+const HOSP_HEX={'Vetsia':'#f0a429','Rijswijk':'#4da6ff'};
+const HOSP_COUNTRY={'Vetsia':'Spain · ES','Rijswijk':'Netherlands · NL'};
+
+let selH='all',selP=0,cmp=false,C={};
+
+window.addEventListener('DOMContentLoaded',()=>{
+  buildPills();
+  render();
+  document.getElementById('footerDate').textContent=
+    new Date(Math.min(...EVENTS.map(e=>e.date))).toLocaleDateString('en-GB',{month:'short',year:'numeric'})+
+    ' – '+MAX_D.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+});
+
+function buildPills(){
+  const el=document.getElementById('hospPills');
+  el.innerHTML='';
+  const a=document.createElement('button');
+  a.className='hp all active';a.textContent='All hospitals';
+  a.onclick=()=>selHosp('all');el.appendChild(a);
+  HOSPS.forEach(h=>{
+    const b=document.createElement('button');
+    b.className='hp';b.textContent=h;b.dataset.h=h;
+    b.onclick=()=>selHosp(h);el.appendChild(b);
+  });
+}
+
+function selHosp(h){
+  selH=h;
+  document.querySelectorAll('.hp').forEach(b=>b.classList.remove('active'));
+  const t=h==='all'?document.querySelector('.hp.all'):document.querySelector(`[data-h="${h}"]`);
+  if(t)t.classList.add('active');
+  render();
+}
+function toggleCompare(){cmp=!cmp;document.getElementById('cmpBtn').classList.toggle('on',cmp);render();}
+function setPeriod(d,el){selP=d;document.querySelectorAll('.pp').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
+function byPeriod(ev){if(!selP)return ev;const c=new Date(MAX_D);c.setDate(c.getDate()-selP);return ev.filter(e=>e.date>=c);}
+function byHosp(ev,h){return h==='all'?ev:ev.filter(e=>e.hospital===h);}
+function periodStr(ev){
+  if(!ev.length)return'';
+  const ds=ev.map(e=>e.date),f=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  return f(new Date(Math.min(...ds)))+' – '+f(new Date(Math.max(...ds)));
+}
+
+function agg(ev){
+  const cases={},mo={},pl=[];
+  ev.forEach(e=>{
+    const k=e.caseId;
+    if(!cases[k])cases[k]={caseId:k,clinic:e.clinic,hospital:e.hospital,ds:e.ds,maxPost:0};
+    if((e.post||0)>cases[k].maxPost)cases[k].maxPost=e.post||0;
+    if(e.post!==null)pl.push(e.post);
+    const m=e.ds.slice(0,7);mo[m]=(mo[m]||0)+1;
+  });
+  const cArr=Object.values(cases);
+  const uniqueTotal=cArr.length;
+  const replied=cArr.filter(c=>c.maxPost>1).length;
+  const responseRate=uniqueTotal>0?Math.round(replied/uniqueTotal*100):0;
+  const cm={};
+  cArr.forEach(c=>{
+    if(!cm[c.clinic])cm[c.clinic]={name:c.clinic,n:0,replied:0};
+    cm[c.clinic].n++;
+    if(c.maxPost>1)cm[c.clinic].replied++;
+  });
+  const avgPost=pl.length?(pl.reduce((a,b)=>a+b,0)/pl.length).toFixed(1):'–';
+  const dl=ev.filter(e=>e.days!==null).map(e=>typeof e.days==='string'?parseFloat(e.days.replace(',','.')):e.days).filter(v=>!isNaN(v));
+  const avgDays=dl.length?(dl.reduce((a,b)=>a+b,0)/dl.length).toFixed(1):'–';
+  const daysN=dl.length;
+  return{clinics:Object.values(cm).sort((a,b2)=>b2.n-a.n),monthly:mo,total:uniqueTotal,replied,responseRate,avgDays,daysN,avgPost};
+}
+
+function render(){
+  const pev=byPeriod(EVENTS);
+  document.getElementById('periodLbl').textContent=periodStr(pev);
+  const el=document.getElementById('main');
+  el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');
+  if(cmp){renderCompare(pev);return;}
+  if(selH==='all')renderAll(pev);
+  else renderHosp(byHosp(pev,selH),selH);
+}
+
+function renderAll(pev){
+  const td=agg(pev);
+  const hd=HOSPS.map(h=>({h,d:agg(byHosp(pev,h))}));
+  const cl=[...new Set(pev.map(e=>e.clinic))].length;
+  document.getElementById('main').innerHTML=`
+    <div class="kpis">
+      ${K('Unique cases',td.total,'')}
+      ${K('Response rate',td.responseRate+'%',td.replied+' of '+td.total+' replied','acc')}
+      ${K('Hospitals',HOSPS.length,'active')}
+      ${K('Clinics',cl,'referring')}
+    </div>
+    <div class="g31">
+      <div class="card">
+        <div class="card-ttl">Referral volume — all hospitals</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="cAll" role="img" aria-label="All hospitals trend"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">By region</div>
+        <div id="regionBreakdown"></div>
+      </div>
+    </div>
+    <div class="g2">
+      ${hd.map(({h,d})=>`
+        <div class="hcard" onclick="selHosp('${h}')">
+          <span class="open-arrow">Open →</span>
+          <div class="hcard-name">${h}</div>
+          <div class="hcard-sub">${HOSP_COUNTRY[h]||''} · ${d.clinics.length} clinics</div>
+          <div class="hcard-metrics">
+            ${[['Cases',d.total],['Response',d.responseRate+'%'],['Avg posts',d.avgPost],['Avg days',d.avgDays]].map(([l,v])=>`
+              <div>
+                <div class="hcard-metric-lbl">${l}</div>
+                <div class="hcard-metric-val">${v}</div>
+              </div>`).join('')}
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">Response rate</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${d.responseRate}%"></div></div>
+        </div>
+      `).join('')}
+    </div>`;
+  drawAllBar('cAll',pev);
+  drawRegion('regionBreakdown',pev);
+}
+
+function renderHosp(ev,h){
+  const d=agg(ev);
+  const col=HOSP_HEX[h]||'#7c5cfc';
+  const months=Object.entries(d.monthly).sort((a,b)=>b[1]-a[1]);
+  const bestM=months[0];
+  const top=d.clinics[0];
+  const mArr=Object.entries(d.monthly).sort((a,b)=>a[0].localeCompare(b[0]));
+  const half=Math.ceil(mArr.length/2);
+  const last=mArr.slice(half).reduce((s,[,v])=>s+v,0);
+  const prev=mArr.slice(0,half).reduce((s,[,v])=>s+v,0);
+  const g=prev>0?Math.round((last-prev)/prev*100):null;
+  const gs=g!==null?(g>=0?`↑ ${g}% vs prior period`:`↓ ${Math.abs(g)}% vs prior period`):'';
+  const gc=g!==null&&g>=0?'up':'dn';
+
+  document.getElementById('main').innerHTML=`
+    <div class="insight">
+      <strong>${h}</strong> · ${HOSP_COUNTRY[h]||''} · <strong>${d.total}</strong> unique cases · <strong>${d.responseRate}%</strong> response rate · avg <strong>${d.avgPost}</strong> messages/case · avg <strong>${d.avgDays}</strong> days to appt <span style="color:var(--text3);font-size:11px">(${d.daysN} cases)</span>
+      ${bestM?` · Peak: <strong>${fmtMonth(bestM[0])}</strong> (${bestM[1]} events)`:''}
+      ${top?` · Top clinic: <strong>${top.name}</strong>`:''}
+    </div>
+    <div class="kpis">
+      ${K('Unique cases',d.total,gs,gc)}
+      ${K('Response rate',d.responseRate+'%',d.replied+' of '+d.total,'acc')}
+      ${K('Avg messages',d.avgPost,'per case')}
+      ${K('Avg days to appt',d.avgDays,d.daysN+' cases recorded')}
+      ${K('Clinics',d.clinics.length,'referring')}
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-ttl">Referral volume over time — ${h}</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="cH" role="img" aria-label="${h} trend"></canvas></div>
+    </div>
+    <div class="tcard">
+      <div class="tbar">
+        <span class="tbar-ttl">Referring clinics</span>
+        <select onchange="resortClinics(this.value,'${h}')">
+          <option value="n">Sort: cases ↓</option>
+          <option value="replied">Sort: replied ↓</option>
+          <option value="rate">Sort: response rate ↓</option>
+        </select>
+      </div>
+      <div id="clinicTable">${clinicTbl(d.clinics,col)}</div>
+    </div>`;
+  drawBar('cH',ev,h,col);
+}
+
+function resortClinics(by,h){
+  const ev=byHosp(byPeriod(EVENTS),h);
+  const d=agg(ev);
+  const col=HOSP_HEX[h]||'#7c5cfc';
+  let cl=[...d.clinics];
+  if(by==='replied')cl.sort((a,b)=>b.replied-a.replied);
+  else if(by==='rate')cl.sort((a,b)=>(b.n>0?b.replied/b.n:0)-(a.n>0?a.replied/a.n:0));
+  document.getElementById('clinicTable').innerHTML=clinicTbl(cl,col);
+}
+
+function clinicTbl(clinics,col){
+  if(!clinics.length)return'<div class="empty">No data for this period</div>';
+  const max=clinics[0].n;
+  return`<table><thead><tr>
+    <th style="width:38%">Clinic</th>
+    <th class="num" style="width:13%">Cases</th>
+    <th class="num" style="width:12%">Replied</th>
+    <th style="width:37%">Response rate</th>
+  </tr></thead><tbody>
+  ${clinics.map((c,i)=>{
+    const r=c.n>0?Math.round(c.replied/c.n*100):0;
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <span class="rank">${i+1}</span>
+        <span style="font-weight:500">${c.name}</span>
+      </div></td>
+      <td class="num">${c.n}</td>
+      <td class="num" style="color:var(--text2)">${c.replied}</td>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="bar-bg" style="flex:1"><div class="bar-fill" style="width:${Math.round(c.n/max*100)}%;background:${col}"></div></div>
+        <span style="font-size:11px;color:var(--text2);min-width:28px;text-align:right;font-family:'DM Mono',monospace">${r}%</span>
+      </div></td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function renderCompare(pev){
+  const h1=HOSPS[0],h2=HOSPS[1];
+  const e1=byHosp(pev,h1),e2=byHosp(pev,h2);
+  const d1=agg(e1),d2=agg(e2);
+  const c1=HOSP_HEX[h1]||'#f0a429',c2=HOSP_HEX[h2]||'#4da6ff';
+  const mRow=(label,v1,v2,hb=true)=>{
+    const n1=parseFloat(v1),n2=parseFloat(v2);
+    const w1=hb?n1>n2:n1<n2,w2=hb?n2>n1:n2<n1;
+    return`<tr>
+      <td style="font-size:12px;color:var(--text2);padding:9px 16px">${label}</td>
+      <td class="num" style="padding:9px 16px;font-weight:${w1?600:400};color:${w1?c1:'var(--text)'}">${v1}</td>
+      <td class="num" style="padding:9px 16px;font-weight:${w2?600:400};color:${w2?c2:'var(--text)'}">${v2}</td>
+    </tr>`;
+  };
+  document.getElementById('main').innerHTML=`
+    <div class="g2" style="margin-bottom:1rem">
+      <div class="card">
+        <div class="card-ttl">Referral volume — both hospitals</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="cCmp" role="img" aria-label="Comparison"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">Side-by-side</div>
+        <table>
+          <thead><tr>
+            <th></th>
+            <th class="num" style="color:${c1};padding:8px 16px">${h1}</th>
+            <th class="num" style="color:${c2};padding:8px 16px">${h2}</th>
+          </tr></thead>
+          <tbody>
+            ${mRow('Unique cases',d1.total,d2.total)}
+            ${mRow('Response rate',d1.responseRate+'%',d2.responseRate+'%')}
+            ${mRow('Avg days to appt',d1.avgDays,d2.avgDays,false)}
+            ${mRow('Avg messages/case',d1.avgPost,d2.avgPost)}
+            ${mRow('Clinics',d1.clinics.length,d2.clinics.length)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="tcard">
+        <div class="tbar"><span class="tbar-ttl" style="color:${c1}">${h1} · Top clinics</span></div>
+        ${clinicTbl(d1.clinics.slice(0,8),c1)}
+      </div>
+      <div class="tcard">
+        <div class="tbar"><span class="tbar-ttl" style="color:${c2}">${h2} · Top clinics</span></div>
+        ${clinicTbl(d2.clinics.slice(0,8),c2)}
+      </div>
+    </div>`;
+  drawCompare('cCmp',e1,e2,h1,h2,c1,c2);
+}
+
+/* CHART HELPERS */
+function dc(){return{tc:'#4a4a5a',gc:'rgba(255,255,255,0.04)'};}
+function dest(id){if(C[id]){C[id].destroy();delete C[id];}}
+function fmtMonth(m){const[y,mo]=m.split('-');return['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo]+' \''+y.slice(2);}
+
+function monthBuckets(ev){
+  const m={},seen={};
+  ev.forEach(e=>{const k=e.ds.slice(0,7);if(!seen[e.caseId]){seen[e.caseId]=1;m[k]=(m[k]||0)+1;}});
+  return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));
+}
+
+function drawAllBar(id,pev){
+  dest(id);const el=document.getElementById(id);if(!el)return;
+  const{tc,gc}=dc();
+  const allM=[...new Set(pev.map(e=>e.ds.slice(0,7)))].sort();
+  const hospCounts={};
+  HOSPS.forEach(h=>{
+    const seen={};
+    hospCounts[h]=allM.map(m=>{
+      let n=0;
+      pev.filter(e=>e.hospital===h&&e.ds.startsWith(m)).forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;n++;}});
+      return n;
+    });
+  });
+  const totals=allM.map((_,i)=>HOSPS.reduce((s,h)=>s+hospCounts[h][i],0));
+  C[id]=new Chart(el,{type:'bar',
+    data:{labels:allM.map(fmtMonth),datasets:[{label:'Total',data:totals,backgroundColor:'rgba(124,92,252,0.25)',borderColor:'#7c5cfc',borderWidth:1.5,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:items=>`${items[0].label}  ·  ${totals[items[0].dataIndex]} cases`,
+        label:()=>null,
+        afterBody:items=>{const i=items[0].dataIndex;return HOSPS.filter(h=>hospCounts[h][i]>0).map(h=>`  ${h}: ${hospCounts[h][i]}`);}
+      },displayColors:false}},
+      scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
+              y:{ticks:{color:tc,font:{size:11}},grid:{color:gc},beginAtZero:true}}}});
+}
+
+function drawBar(id,ev,label,col){
+  dest(id);const el=document.getElementById(id);if(!el)return;
+  const{tc,gc}=dc(),bkts=monthBuckets(ev);
+  C[id]=new Chart(el,{type:'bar',
+    data:{labels:bkts.map(([m])=>fmtMonth(m)),datasets:[{label,data:bkts.map(([,v])=>v),backgroundColor:col+'44',borderColor:col,borderWidth:1.5,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
+              y:{ticks:{color:tc,font:{size:11}},grid:{color:gc},beginAtZero:true}}}});
+}
+
+function drawRegion(id,pev){
+  const el=document.getElementById(id);if(!el)return;
+  const seen={},byCo={};
+  pev.forEach(e=>{
+    if(!seen[e.caseId]){
+      seen[e.caseId]=1;
+      const key=e.region||e.hospital;
+      if(!byCo[key])byCo[key]={region:e.region,hospital:e.hospital,n:0};
+      byCo[key].n++;
+    }
+  });
+  const total=Object.values(seen).length;
+  const entries=Object.entries(byCo).sort((a,b)=>b[1].n-a[1].n);
+  const cols={'Spain':'#f0a429','Netherlands':'#4da6ff'};
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:18px;padding-top:4px">
+    ${entries.map(([key,v])=>{
+      const pct=total>0?Math.round(v.n/total*100):0;
+      const col=cols[v.region]||'#7c5cfc';
+      return`<div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${v.region}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace">${v.hospital}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;color:${col}">${v.n}</div>
+            <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${pct}% of cases</div>
+          </div>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      </div>`;
+    }).join('')}
+    <div style="border-top:0.5px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;align-items:baseline">
+      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">Total</div>
+      <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em">${total}</div>
+    </div>
+  </div>`;
+}
+
+function drawCompare(id,e1,e2,l1,l2,c1,c2){
+  dest(id);const el=document.getElementById(id);if(!el)return;
+  const{tc,gc}=dc();
+  const allM=[...new Set([...e1,...e2].map(e=>e.ds.slice(0,7)))].sort();
+  const cnt=(ev,m)=>{const s={};ev.filter(e=>e.ds.startsWith(m)).forEach(e=>s[e.caseId]=1);return Object.keys(s).length;};
+  C[id]=new Chart(el,{type:'bar',
+    data:{labels:allM.map(fmtMonth),datasets:[
+      {label:l1,data:allM.map(m=>cnt(e1,m)),backgroundColor:c1+'33',borderColor:c1,borderWidth:1.5,borderRadius:4},
+      {label:l2,data:allM.map(m=>cnt(e2,m)),backgroundColor:c2+'33',borderColor:c2,borderWidth:1.5,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:tc,font:{size:11},boxWidth:10,padding:8}}},
+      scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
+              y:{ticks:{color:tc,font:{size:11}},grid:{color:gc},beginAtZero:true}}}});
+}
+
+function K(label,val,sub,cls=''){
+  return`<div class="kpi"><div class="kpi-lbl">${label}</div><div class="kpi-val">${val}</div>${sub?`<div class="kpi-sub ${cls}">${sub}</div>`:''}</div>`;
+}
+
+function handleFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const lines=ev.target.result.trim().split('\n');
+    const hdr=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+    const ci=hdr.indexOf('case_organization_name'),hi=hdr.indexOf('contributor_organization_name');
+    const ri=hdr.indexOf('Region'),li=hdr.indexOf('is_lost'),di=hdr.indexOf('days_to_appt'),ti=hdr.indexOf('referral_sent_at_utc'),pi=hdr.indexOf('post_count'),ki=hdr.indexOf('case_id');
+    if(ci<0||hi<0){alert('Required columns not found.');return;}
+    EVENTS.length=0;
+    lines.slice(1).forEach(l=>{
+      const v=l.split(',').map(x=>x.trim().replace(/"/g,''));
+      const ds=(v[ti]||'').slice(0,10);
+      if(ds&&v[ci]&&v[hi])EVENTS.push({
+        date:new Date(ds),ds,clinic:v[ci],hospital:v[hi],region:v[ri]||'',
+        lost:v[li]==='0'?0:1,
+        days:parseFloat((v[di]||'').replace(',','.'))||null,
+        post:parseInt(v[pi])||null,
+        caseId:parseInt(v[ki])||null
+      });
+    });
+    HOSPS.length=0;
+    [...new Set(EVENTS.map(e=>e.hospital))].sort().forEach(h=>HOSPS.push(h));
+    selH='all';buildPills();render();
+  };
+  r.readAsText(file);
+}
+</script>
+</body>
+</html>
