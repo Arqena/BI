@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +18,7 @@
   --border-md:rgba(255,255,255,0.11);
   --text:#f0eef8;
   --text2:#8a8899;
-  --text3:#4a4a5a;
+  --text3:#868693;
   --accent:#7c5cfc;
   --accent2:#00d4aa;
   --amber:#f0a429;
@@ -955,19 +956,25 @@ function renderAll(pev){
   const prevEv=byPrevPeriod(EVENTS);
   const pd=agg(prevEv);
 
-  // Weekly avg (last 4 weeks)
-  const seen={},wMap={};
-  EVENTS.forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;const w=isoWeekKey(e.ds);wMap[w]=(wMap[w]||0)+1;}});
-  const allWeeks=Object.keys(wMap).sort();
-  const last4vals=allWeeks.slice(-4).map(w=>wMap[w]||0);
-  const prev4vals=allWeeks.slice(-8,-4).map(w=>wMap[w]||0);
-  const weeklyAvg=last4vals.length?+(last4vals.reduce((a,b)=>a+b,0)/last4vals.length).toFixed(1):0;
-  const prevAvg=prev4vals.length?+(prev4vals.reduce((a,b)=>a+b,0)/prev4vals.length).toFixed(1):0;
+  // Weekly avg based on filtered period events
+  const seenW={},wMapP={};
+  pev.forEach(e=>{if(!seenW[e.caseId]){seenW[e.caseId]=1;const w=isoWeekKey(e.ds);wMapP[w]=(wMapP[w]||0)+1;}});
+  const periodWeeks=Object.keys(wMapP).sort();
+  const periodVals=periodWeeks.map(w=>wMapP[w]);
+  const weeklyAvg=periodVals.length?+(periodVals.reduce((a,b)=>a+b,0)/periodVals.length).toFixed(1):0;
+
+  // For trend: compare first half vs second half of current period
+  const half=Math.ceil(periodVals.length/2);
+  const firstHalf=periodVals.slice(0,half);
+  const secondHalf=periodVals.slice(half);
+  const firstAvg=firstHalf.length?firstHalf.reduce((a,b)=>a+b,0)/firstHalf.length:0;
+  const secondAvg=secondHalf.length?secondHalf.reduce((a,b)=>a+b,0)/secondHalf.length:0;
+  const weeklyTrend=selP&&firstAvg>0?trendBadge(secondAvg,firstAvg):'';
 
   document.getElementById('main').innerHTML=`
     <div class="kpis" style="margin-bottom:1.25rem">
       ${K('Unique cases',td.total,'all time','',selP?trendBadge(td.total,pd.total):'')}
-      ${K('Avg / week',weeklyAvg,'last 4 weeks','',trendBadge(weeklyAvg,prevAvg))}
+      ${K('Avg / week',weeklyAvg,'cases per week','',weeklyTrend)}
       ${K('Response rate',td.responseRate+'%',td.replied+' of '+td.total,'acc',selP?trendBadge(td.responseRate,pd.responseRate):'')}
       ${K('Users',79,'registered')}
       ${K('Clinics',cl,'referring')}
@@ -1016,7 +1023,7 @@ function renderAll(pev){
               <div style="display:flex;align-items:flex-end;gap:2px;height:24px">
                 ${calcHospLast8(h).map((v,i)=>{
                   const maxV=Math.max(...calcHospLast8(h),1);
-                  return`<div title="${fmtKey(allWeeks.slice(-8)[i]||'','week')}: ${v}" style="flex:1;height:${Math.max(Math.round(v/maxV*100),4)}%;background:${i>=6?col:col+'55'};border-radius:1px 1px 0 0;min-height:1px"></div>`;
+                  return`<div title="${fmtKey(periodWeeks.slice(-8)[i]||'','week')}: ${v}" style="flex:1;height:${Math.max(Math.round(v/maxV*100),4)}%;background:${i>=6?col:col+'55'};border-radius:1px 1px 0 0;min-height:1px"></div>`;
                 }).join('')}
               </div>
             </div>`;
