@@ -22,6 +22,7 @@ exports.handler = async function(event) {
     });
 
     const data = await response.json();
+    console.log('Anthropic response:', JSON.stringify(data));
 
     return {
       statusCode: 200,
@@ -30,6 +31,7 @@ exports.handler = async function(event) {
     };
 
   } catch (err) {
+    console.log('Error:', err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: { message: err.message } })
