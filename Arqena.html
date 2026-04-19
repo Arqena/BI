@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Konekta · Dashboard</title>
+<title>Arqena · Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -61,12 +62,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .period-lbl{font-size:11px;color:var(--text3);margin-bottom:1.5rem;font-family:"DM Mono",monospace;letter-spacing:.02em;}
 
 /* KPI STRIP */
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1.25rem;}
-.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem 1.125rem;transition:border-color .15s;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1.25rem;align-items:stretch;}
+.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem 1.125rem;transition:border-color .15s;display:flex;flex-direction:column;}
 .kpi:hover{border-color:var(--border-md);}
 .kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px;font-family:"DM Mono",monospace;}
 .kpi-val{font-size:28px;font-weight:600;line-height:1;letter-spacing:-0.02em;}
-.kpi-sub{font-size:11px;color:var(--text2);margin-top:5px;}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:5px;flex:1;}
+.kpi-badge{margin-top:10px;min-height:20px;}
 .up{color:var(--accent2);}
 .dn{color:var(--red);}
 .acc{color:var(--accent);}
@@ -124,12 +126,110 @@ tbody tr:hover td{background:var(--surface2);}
 /* FOOTER */
 .footer{margin-top:3rem;padding-top:1rem;border-top:0.5px solid var(--border);font-size:11px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;font-family:"DM Mono",monospace;}
 
-/* FADE IN */
+/* TREND BADGE */
+.trend{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;}
+.trend-up{background:rgba(0,212,170,0.12);color:#00d4aa;}
+.trend-dn{background:rgba(255,94,94,0.12);color:#ff5e5e;}
+.trend-flat{background:rgba(138,136,153,0.12);color:#8a8899;}
+
+/* MOMENTUM */
+.mom-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.mom-acc{background:rgba(0,212,170,0.12);color:#00d4aa;}
+.mom-stable{background:rgba(138,136,153,0.1);color:#8a8899;}
+.mom-dec{background:rgba(255,94,94,0.12);color:#ff5e5e;}
+.mom-dead{background:rgba(255,94,94,0.2);color:#ff5e5e;}
+.htab-row{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1.25rem;}
+.htab{font-size:13px;padding:7px 16px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:color .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap;}
+.htab:hover{color:var(--text);}
+.htab.active{color:var(--text);font-weight:500;border-bottom-color:var(--accent);}
+.sparkrow td{vertical-align:middle;}
+.clinic-chart-row{display:none;}
+.clinic-chart-row.open{display:table-row;}
+.clinic-chart-cell{background:var(--surface2);padding:16px 20px !important;border-bottom:0.5px solid var(--border);}
+
+/* AI CHAT */
+.chat-btn{font-size:12px;background:linear-gradient(135deg,#7c5cfc,#5a3fd4);border:none;border-radius:var(--r-sm);padding:6px 12px;color:#fff;cursor:pointer;font-family:inherit;font-weight:500;transition:opacity .15s;}
+.chat-btn:hover{opacity:.85;}
+.chat-panel{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--surface);border-left:0.5px solid var(--border-md);display:flex;flex-direction:column;z-index:1000;transform:translateX(100%);transition:transform .25s ease;}
+.chat-panel.open{transform:translateX(0);}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.chat-header-title{font-size:14px;font-weight:600;}
+.chat-header-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.chat-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:2px 6px;font-family:inherit;}
+.chat-close:hover{color:var(--text);}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:90%;font-size:13px;line-height:1.5;}
+.chat-msg.user{align-self:flex-end;background:var(--accent);color:#fff;padding:8px 12px;border-radius:12px 12px 3px 12px;}
+.chat-msg.assistant{align-self:flex-start;background:var(--surface2);color:var(--text);padding:8px 12px;border-radius:12px 12px 12px 3px;}
+.chat-msg.thinking{align-self:flex-start;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace;padding:4px 0;}
+.chat-input-area{padding:1rem;border-top:0.5px solid var(--border);flex-shrink:0;}
+.chat-input-row{display:flex;gap:8px;}
+.chat-input{flex:1;background:var(--surface2);border:0.5px solid var(--border-md);border-radius:var(--r-sm);padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;resize:none;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{background:var(--accent);border:none;border-radius:var(--r-sm);padding:8px 14px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;flex-shrink:0;}
+.chat-send:hover{opacity:.85;}
+.chat-send:disabled{opacity:.4;cursor:default;}
+.chat-api-setup{padding:1rem;background:var(--surface2);border-radius:var(--r-sm);margin-bottom:12px;font-size:12px;color:var(--text2);}
+.chat-api-input{width:100%;background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--r-sm);padding:7px 10px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none;margin-top:6px;}
+.chat-api-input:focus{border-color:var(--accent);}
+.chat-api-save{margin-top:8px;width:100%;background:var(--accent);border:none;border-radius:var(--r-sm);padding:7px;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.chat-suggestion{font-size:11px;padding:4px 10px;border:0.5px solid var(--border-md);border-radius:20px;background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .12s;}
+.chat-suggestion:hover{border-color:var(--accent);color:var(--text);}
+
+/* MOBILE */
+@media(max-width:600px){
+  .shell{padding:1rem 1rem 3rem;}
+  .ctrl-bar{gap:6px;padding:8px 10px;}
+  .ctrl-label{display:none;}
+  .pp-row{margin-left:0;}
+  .hcard-metrics{grid-template-columns:1fr 1fr;}
+  .kpis{grid-template-columns:1fr 1fr;}
+  .topbar{gap:8px;}
+  .upload-btn{font-size:11px;padding:5px 8px;}
+  table{font-size:12px;}
+  thead th,tbody td{padding:7px 10px;}
+}
+@media(max-width:400px){
+  .kpis{grid-template-columns:1fr 1fr;}
+  .hcard-metrics{grid-template-columns:1fr 1fr;}
+}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .fade{animation:fadeUp .25s ease both;}
 </style>
 </head>
 <body>
+
+<div id="gate" style="position:fixed;inset:0;background:#0e0e10;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="width:100%;max-width:360px;padding:2rem;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:2rem;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#7c5cfc,#00d4aa);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 18 18" fill="none" width="17" height="17">
+          <circle cx="5.5" cy="9" r="3.5" fill="white" opacity="0.95"/>
+          <circle cx="13" cy="5" r="2.5" fill="white" opacity="0.7"/>
+          <circle cx="13" cy="13" r="2.5" fill="white" opacity="0.7"/>
+          <line x1="8.8" y1="7.8" x2="10.7" y2="6.2" stroke="white" stroke-width="1.2"/>
+          <line x1="8.8" y1="10.2" x2="10.7" y2="11.8" stroke="white" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#f0eef8;font-family:'DM Sans',sans-serif;">Arqena</div>
+        <div style="font-size:11px;color:#8a8899;font-family:'DM Sans',sans-serif;">Internal Operations</div>
+      </div>
+    </div>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#4a4a5a;margin-bottom:8px;font-family:'DM Mono',monospace;">Password</div>
+    <input id="pwInput" type="password" placeholder="Enter password"
+      style="width:100%;padding:10px 14px;background:#16161a;border:0.5px solid rgba(255,255,255,0.11);border-radius:6px;color:#f0eef8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <div id="pwErr" style="font-size:12px;color:#ff5e5e;margin-bottom:12px;min-height:18px;font-family:'DM Sans',sans-serif;"></div>
+    <button onclick="checkPw()"
+      style="width:100%;padding:10px;background:linear-gradient(135deg,#7c5cfc,#5a3fd4);border:none;border-radius:6px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      Enter dashboard →
+    </button>
+  </div>
+</div>
+
+<div id="appShell" style="display:none;">
 <div class="shell">
 
   <div class="topbar">
@@ -144,15 +244,41 @@ tbody tr:hover td{background:var(--surface2);}
         </svg>
       </div>
       <div>
-        <div class="logo-name">Konekta</div>
+        <div class="logo-name">Arqena</div>
         <div class="logo-sub">Internal Operations</div>
       </div>
     </div>
     <label class="upload-btn">⬆ Upload export<input type="file" accept=".csv" onchange="handleFile(event)"></label>
+    <button class="upload-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="chat-btn" onclick="toggleChat()">✦ Ask AI</button>
+  </div>
+
+  <!-- AI CHAT PANEL -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <div>
+        <div class="chat-header-title">✦ Ask AI</div>
+        <div class="chat-header-sub">Ask anything about your referral data</div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+    </div>
+    <div class="chat-input-area" id="chatInputArea">
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-suggestion" onclick="askSuggestion(this)">How many cases last week?</button>
+        <button class="chat-suggestion" onclick="askSuggestion(this)">Which clinic sends the most referrals?</button>
+        <button class="chat-suggestion" onclick="askSuggestion(this)">Compare Vetsia and Rijswijk</button>
+        <button class="chat-suggestion" onclick="askSuggestion(this)">Any clinics losing momentum?</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask about your data..." onkeydown="onChatKey(event)"></textarea>
+        <button class="chat-send" id="chatSend" onclick="sendChat()">Send</button>
+      </div>
+    </div>
   </div>
 
   <div class="ctrl-bar">
-    <span class="ctrl-label">Hospital</span>
     <div class="hosp-pills" id="hospPills"></div>
     <button class="cmp-btn" id="cmpBtn" onclick="toggleCompare()">Compare ↔</button>
     <div class="pp-row">
@@ -168,8 +294,9 @@ tbody tr:hover td{background:var(--surface2);}
   <div id="main" class="fade"></div>
 
   <div class="footer">
-    <span>Konekta · Arqena AB</span>
+    <span>Arqena · Internal Operations</span>
     <span id="footerDate"></span>
+    <span id="lastUpdated"></span>
   </div>
 </div>
 
@@ -623,43 +750,133 @@ const RAW=[
 const EVENTS=RAW.map(r=>({date:new Date(r[0]),ds:r[0],clinic:r[1],hospital:r[2],region:r[3],lost:r[4],days:r[5],post:r[6]||null,caseId:r[7]}));
 const HOSPS=[...new Set(EVENTS.map(e=>e.hospital))].sort();
 const MAX_D=new Date(Math.max(...EVENTS.map(e=>e.date)));
-const HOSP_COLOR={'Vetsia':'var(--amber)','Rijswijk':'var(--blue)'};
-const HOSP_HEX={'Vetsia':'#f0a429','Rijswijk':'#4da6ff'};
-const HOSP_COUNTRY={'Vetsia':'Spain · ES','Rijswijk':'Netherlands · NL'};
+const HOSP_HEX={'Vetsia':'#f0a429','Rijswijk':'#4da6ff','Albano':'#7c5cfc','Bagarmossen':'#00d4aa'};
+const HOSP_REGION={'Vetsia':'Spain','Rijswijk':'Netherlands','Albano':'Sweden','Bagarmossen':'Sweden'};
+const REGION_CODE={'Spain':'ES','Netherlands':'NL','Sweden':'SE','Denmark':'DK','United Kingdom':'UK'};
+const COMING_SOON=[
+  {name:'Albano',region:'Sweden'},
+  {name:'Bagarmossen',region:'Sweden'},
+];
 
-let selH='all',selP=0,cmp=false,C={};
+function getRegion(h){
+  const e=EVENTS.find(ev=>ev.hospital===h);
+  return e?e.region:(HOSP_REGION[h]||'');
+}
+function getCountries(){
+  const from_data=[...new Set(EVENTS.map(e=>e.region))].filter(Boolean);
+  const from_coming=COMING_SOON.map(c=>c.region).filter(r=>!from_data.includes(r));
+  return[...new Set([...from_data,...from_coming])].sort();
+}
+function getHospsByCountry(country){
+  return HOSPS.filter(h=>getRegion(h)===country);
+}
+
+let selH='all', selCountry='all', selP=0, cmp=false, C={};
 
 window.addEventListener('DOMContentLoaded',()=>{
+  // Try to restore uploaded CSV from localStorage
+  try{
+    const saved=localStorage.getItem('arqena_csv');
+    const savedDate=localStorage.getItem('arqena_csv_date');
+    if(saved){
+      const events=parseCSVText(saved);
+      if(events&&events.length>0){
+        EVENTS.length=0;
+        events.forEach(e=>EVENTS.push({...e,date:new Date(e.ds)}));
+        HOSPS.length=0;
+        [...new Set(EVENTS.map(e=>e.hospital))].sort().forEach(h=>HOSPS.push(h));
+        // Show when CSV was uploaded
+        const uploadedEl=document.getElementById('lastUpdated');
+        if(uploadedEl&&savedDate){
+          const d=new Date(savedDate);
+          uploadedEl.textContent='Data uploaded: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+        }
+      }
+    }
+  }catch(err){console.warn('localStorage unavailable');}
+
   buildPills();
   render();
+
+  const maxD=new Date(Math.max(...EVENTS.map(e=>e.date)));
   document.getElementById('footerDate').textContent=
     new Date(Math.min(...EVENTS.map(e=>e.date))).toLocaleDateString('en-GB',{month:'short',year:'numeric'})+
-    ' – '+MAX_D.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+    ' – '+maxD.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+  updateLastUpdated();
 });
 
 function buildPills(){
   const el=document.getElementById('hospPills');
   el.innerHTML='';
-  const a=document.createElement('button');
-  a.className='hp all active';a.textContent='All hospitals';
-  a.onclick=()=>selHosp('all');el.appendChild(a);
-  HOSPS.forEach(h=>{
-    const b=document.createElement('button');
-    b.className='hp';b.textContent=h;b.dataset.h=h;
-    b.onclick=()=>selHosp(h);el.appendChild(b);
+
+  // Level 1: All
+  el.appendChild(navPill('All hospitals','all-pill hp all'+(selH==='all'&&selCountry==='all'?' active':''),()=>{
+    selH='all';selCountry='all';buildPills();render();
+  }));
+
+  // Level 2: Countries
+  getCountries().forEach(country=>{
+    const code=REGION_CODE[country]||country.slice(0,2).toUpperCase();
+    const isSelCountry=selCountry===country;
+    const p=navPill(code,'hp country'+(isSelCountry?' active':''),()=>{
+      selCountry=isSelCountry?'all':country;
+      selH='all';
+      buildPills();render();
+    });
+    el.appendChild(p);
+
+    // Level 3: Hospitals in this country (only show if country selected)
+    if(isSelCountry){
+      const hospsInCountry=getHospsByCountry(country);
+      // Separator
+      const sep=document.createElement('span');
+      sep.style.cssText='color:var(--text3);font-size:12px;margin:0 2px;align-self:center';
+      sep.textContent='›';
+      el.appendChild(sep);
+
+      hospsInCountry.forEach(h=>{
+        const hpill=navPill(h,'hp hosp'+(selH===h?' active':''),()=>{
+          selH=selH===h?'all':h;buildPills();render();
+        });
+        el.appendChild(hpill);
+      });
+
+      // Coming soon in this country
+      COMING_SOON.filter(c=>c.region===country).forEach(c=>{
+        const cp=navPill(c.name+' ·soon','hp hosp coming',null);
+        el.appendChild(cp);
+      });
+    }
   });
 }
 
+function navPill(label,cls,onclick){
+  const b=document.createElement('button');
+  b.className=cls;b.textContent=label;
+  if(onclick)b.onclick=onclick;
+  else{b.disabled=true;b.style.opacity='0.35';b.style.cursor='default';}
+  return b;
+}
+
 function selHosp(h){
-  selH=h;
-  document.querySelectorAll('.hp').forEach(b=>b.classList.remove('active'));
-  const t=h==='all'?document.querySelector('.hp.all'):document.querySelector(`[data-h="${h}"]`);
-  if(t)t.classList.add('active');
-  render();
+  selH=h;buildPills();render();
 }
 function toggleCompare(){cmp=!cmp;document.getElementById('cmpBtn').classList.toggle('on',cmp);render();}
 function setPeriod(d,el){selP=d;document.querySelectorAll('.pp').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
 function byPeriod(ev){if(!selP)return ev;const c=new Date(MAX_D);c.setDate(c.getDate()-selP);return ev.filter(e=>e.date>=c);}
+function byPrevPeriod(ev){
+  if(!selP)return[];
+  const end=new Date(MAX_D);end.setDate(end.getDate()-selP);
+  const start=new Date(end);start.setDate(start.getDate()-selP);
+  return ev.filter(e=>e.date>=start&&e.date<end);
+}
+function trendBadge(curr,prev){
+  if(!prev||prev===0)return'';
+  const pct=Math.round((curr-prev)/prev*100);
+  if(pct>0)return`<span class="trend trend-up">↑ ${pct}% vs prior</span>`;
+  if(pct<0)return`<span class="trend trend-dn">↓ ${Math.abs(pct)}% vs prior</span>`;
+  return`<span class="trend trend-flat">→ flat vs prior</span>`;
+}
 function byHosp(ev,h){return h==='all'?ev:ev.filter(e=>e.hospital===h);}
 function periodStr(ev){
   if(!ev.length)return'';
@@ -699,96 +916,429 @@ function render(){
   const el=document.getElementById('main');
   el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');
   if(cmp){renderCompare(pev);return;}
-  if(selH==='all')renderAll(pev);
-  else renderHosp(byHosp(pev,selH),selH);
+  if(selH!=='all'){renderHosp(byHosp(pev,selH),selH);return;}
+  if(selCountry!=='all'){renderCountry(pev,selCountry);return;}
+  renderAll(pev);
+}
+
+function calcGrowthPulse(pev){
+  // Weekly case counts for last 8 weeks
+  const seen={},wMap={};
+  EVENTS.forEach(e=>{
+    if(seen[e.caseId])return;
+    seen[e.caseId]=1;
+    const w=isoWeekKey(e.ds);
+    wMap[w]=(wMap[w]||0)+1;
+  });
+  const weeks=Object.keys(wMap).sort();
+  const last8=weeks.slice(-8).map(w=>wMap[w]||0);
+  const avg4=last8.slice(-4).reduce((a,b)=>a+b,0)/4;
+  const prev4=last8.slice(0,4).reduce((a,b)=>a+b,0)/4;
+  const pct=prev4>0?Math.round((avg4-prev4)/prev4*100):null;
+  const weeklyAvg=last8.length?+(last8.reduce((a,b)=>a+b,0)/last8.length).toFixed(1):0;
+  return{last8,weeks:weeks.slice(-8),avg4:+avg4.toFixed(1),pct,weeklyAvg,state:pct===null?'stable':pct>=15?'accelerating':pct<=-15?'declining':'stable'};
 }
 
 function renderAll(pev){
   const td=agg(pev);
-  const hd=HOSPS.map(h=>({h,d:agg(byHosp(pev,h))}));
   const cl=[...new Set(pev.map(e=>e.clinic))].length;
+  const pulse=calcGrowthPulse(pev);
+  const countries=getCountries();
+  const prevEv=byPrevPeriod(EVENTS);
+  const pd=agg(prevEv);
+
+  // Growth pulse color
+  const pulseCol=pulse.state==='accelerating'?'#00d4aa':pulse.state==='declining'?'#ff5e5e':'#8a8899';
+  const pulseLabel=pulse.state==='accelerating'?'↑ Accelerating':pulse.state==='declining'?'↓ Declining':'→ Stable';
+  const pulsePct=pulse.pct!==null?` · ${pulse.pct>0?'+':''}${pulse.pct}% vs prior 4w`:'';
+
   document.getElementById('main').innerHTML=`
-    <div class="kpis">
-      ${K('Unique cases',td.total,'')}
-      ${K('Response rate',td.responseRate+'%',td.replied+' of '+td.total+' replied','acc')}
-      ${K('Hospitals',HOSPS.length,'active')}
-      ${K('Clinics',cl,'referring')}
+    <div class="g2" style="margin-bottom:1.25rem">
+      <div class="card" style="border-left:2px solid ${pulseCol}">
+        <div class="card-ttl">Network growth pulse</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+          <div style="font-size:32px;font-weight:600;letter-spacing:-0.02em;color:${pulseCol}">${pulse.weeklyAvg}</div>
+          <div style="font-size:13px;color:var(--text2)">cases/week avg</div>
+        </div>
+        <div style="font-size:12px;color:${pulseCol};margin-bottom:14px;font-family:'DM Mono',monospace">${pulseLabel}${pulsePct}</div>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:36px">
+          ${pulse.last8.map((v,i)=>{
+            const maxV=Math.max(...pulse.last8,1);
+            const pct=Math.round(v/maxV*100);
+            const isRecent=i>=6;
+            const w=pulse.weeks[i]?fmtKey(pulse.weeks[i],'week'):'';
+            return`<div title="${w}: ${v} cases" style="flex:1;height:${Math.max(pct,4)}%;background:${isRecent?pulseCol:pulseCol+'55'};border-radius:2px 2px 0 0;min-height:2px;cursor:default"></div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace">Last 8 weeks · darker = most recent</div>
+      </div>
+      <div class="kpis" style="margin-bottom:0">
+        ${K('Unique cases',td.total,'','',selP?trendBadge(td.total,pd.total):'')}
+        ${K('Response rate',td.responseRate+'%',td.replied+' of '+td.total,'acc',selP?trendBadge(td.responseRate,pd.responseRate):'')}
+        ${K('Users',79,'registered accounts')}
+        ${K('Clinics',cl,'referring')}
+      </div>
     </div>
-    <div class="g31">
-      <div class="card">
-        <div class="card-ttl">Referral volume — all hospitals</div>
-        <div class="chart-wrap" style="height:200px"><canvas id="cAll" role="img" aria-label="All hospitals trend"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-ttl">By region</div>
-        <div id="regionBreakdown"></div>
-      </div>
+
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-ttl">Referral volume — all hospitals</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cAll" role="img" aria-label="All hospitals trend"></canvas></div>
+    </div>
+
+    ${countries.map(country=>{
+      const code=REGION_CODE[country]||country.slice(0,2);
+      const hospsInCountry=getHospsByCountry(country);
+      const comingInCountry=COMING_SOON.filter(c=>c.region===country);
+      const countryEv=pev.filter(e=>e.region===country);
+      const cd=agg(countryEv);
+
+      return`<div style="margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em">${country}</div>
+          <div style="height:0.5px;flex:1;background:var(--border)"></div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${cd.total} cases · ${hospsInCountry.length+comingInCountry.length} hospitals</div>
+        </div>
+        <div class="g2">
+          ${hospsInCountry.map(h=>{
+            const d=agg(byHosp(pev,h));
+            const col=HOSP_HEX[h]||'#7c5cfc';
+            const pulse2=calcHospPulse(h);
+            const p2col=pulse2.state==='accelerating'?'#00d4aa':pulse2.state==='declining'?'#ff5e5e':'#4a4a5a';
+            return`<div class="hcard" onclick="selHosp('${h}')">
+              <span class="open-arrow">Open →</span>
+              <div class="hcard-name">${h}</div>
+              <div class="hcard-sub" style="display:flex;align-items:center;gap:8px">
+                <span>${country}</span>
+                <span class="mom-pill ${pulse2.state==='accelerating'?'mom-acc':pulse2.state==='declining'?'mom-dec':'mom-stable'}" style="font-size:10px;padding:2px 7px">${pulse2.state==='accelerating'?'↑ Accel':pulse2.state==='declining'?'↓ Declining':'→ Stable'}</span>
+              </div>
+              <div class="hcard-metrics" style="grid-template-columns:repeat(4,1fr)">
+                ${[['Cases',d.total],['Avg/wk',calcHospWeeklyAvg(h)],['Response',d.responseRate+'%'],['Clinics',d.clinics.length]].map(([l,v])=>`
+                  <div>
+                    <div class="hcard-metric-lbl">${l}</div>
+                    <div class="hcard-metric-val">${v}</div>
+                  </div>`).join('')}
+              </div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:5px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em">Weekly volume</div>
+              <div style="display:flex;align-items:flex-end;gap:2px;height:20px">
+                ${calcHospLast8(h).map((v,i)=>{
+                  const maxV=Math.max(...calcHospLast8(h),1);
+                  return`<div style="flex:1;height:${Math.max(Math.round(v/maxV*100),4)}%;background:${i>=6?col:col+'55'};border-radius:1px 1px 0 0;min-height:1px"></div>`;
+                }).join('')}
+              </div>
+            </div>`;
+          }).join('')}
+          ${comingInCountry.map(c=>`
+            <div class="hcard" style="opacity:0.35;cursor:default;pointer-events:none">
+              <div class="hcard-name" style="color:var(--text2)">${c.name}</div>
+              <div class="hcard-sub">${country} · Coming soon</div>
+              <div style="margin-top:1rem;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">Onboarding in progress</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+
+  drawAllBar('cAll',pev);
+}
+
+function calcHospLast8(h){
+  const seen={},wMap={};
+  EVENTS.filter(e=>e.hospital===h).forEach(e=>{
+    if(seen[e.caseId])return;seen[e.caseId]=1;
+    const w=isoWeekKey(e.ds);wMap[w]=(wMap[w]||0)+1;
+  });
+  const weeks=Object.keys(wMap).sort().slice(-8);
+  return weeks.map(w=>wMap[w]||0);
+}
+
+function calcHospWeeklyAvg(h){
+  const vals=calcHospLast8(h);
+  if(!vals.length)return'–';
+  return(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+function calcHospPulse(h){
+  const vals=calcHospLast8(h);
+  if(vals.length<4)return{state:'stable'};
+  const recent=(vals[vals.length-1]+(vals[vals.length-2]||0))/2;
+  const prior=((vals[vals.length-3]||0)+(vals[vals.length-4]||0))/2;
+  if(prior===0)return{state:recent>0?'accelerating':'stable'};
+  const pct=Math.round((recent-prior)/prior*100);
+  return{state:pct>=20?'accelerating':pct<=-20?'declining':'stable',pct};
+}
+
+function renderCountry(pev,country){
+  const hosps=getHospsByCountry(country);
+  const countryEv=pev.filter(e=>e.region===country);
+  const cd=agg(countryEv);
+  const pd=agg(byPrevPeriod(EVENTS).filter(e=>e.region===country));
+  const coming=COMING_SOON.filter(c=>c.region===country);
+
+  document.getElementById('main').innerHTML=`
+    <div class="kpis" style="margin-bottom:1.25rem">
+      ${K('Cases',cd.total,'in '+country,'',selP?trendBadge(cd.total,pd.total):'')}
+      ${K('Response rate',cd.responseRate+'%',cd.replied+' of '+cd.total,'acc')}
+      ${K('Hospitals',hosps.length+(coming.length?` +${coming.length} soon`:''),'active')}
+      ${K('Clinics',cd.clinics.length,'referring')}
+    </div>
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-ttl">Referral volume — ${country}</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cCountry" role="img" aria-label="${country} trend"></canvas></div>
     </div>
     <div class="g2">
-      ${hd.map(({h,d})=>`
-        <div class="hcard" onclick="selHosp('${h}')">
+      ${hosps.map(h=>{
+        const d=agg(byHosp(pev,h));
+        const col=HOSP_HEX[h]||'#7c5cfc';
+        return`<div class="hcard" onclick="selHosp('${h}')">
           <span class="open-arrow">Open →</span>
           <div class="hcard-name">${h}</div>
-          <div class="hcard-sub">${HOSP_COUNTRY[h]||''} · ${d.clinics.length} clinics</div>
-          <div class="hcard-metrics">
-            ${[['Cases',d.total],['Response',d.responseRate+'%'],['Avg posts',d.avgPost],['Avg days',d.avgDays]].map(([l,v])=>`
-              <div>
-                <div class="hcard-metric-lbl">${l}</div>
-                <div class="hcard-metric-val">${v}</div>
-              </div>`).join('')}
+          <div class="hcard-metrics" style="grid-template-columns:repeat(4,1fr)">
+            ${[['Cases',d.total],['Avg/wk',calcHospWeeklyAvg(h)],['Response',d.responseRate+'%'],['Clinics',d.clinics.length]].map(([l,v])=>`
+              <div><div class="hcard-metric-lbl">${l}</div><div class="hcard-metric-val">${v}</div></div>`).join('')}
           </div>
-          <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">Response rate</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${d.responseRate}%"></div></div>
-        </div>
-      `).join('')}
+          <div class="bar-bg"><div class="bar-fill" style="width:${d.responseRate}%;background:${col}"></div></div>
+        </div>`;
+      }).join('')}
+      ${coming.map(c=>`
+        <div class="hcard" style="opacity:0.35;cursor:default;pointer-events:none">
+          <div class="hcard-name" style="color:var(--text2)">${c.name}</div>
+          <div class="hcard-sub">Coming soon · Onboarding in progress</div>
+        </div>`).join('')}
     </div>`;
-  drawAllBar('cAll',pev);
-  drawRegion('regionBreakdown',pev);
+
+  const col=hosps.length===1?HOSP_HEX[hosps[0]]||'#7c5cfc':'#7c5cfc';
+  drawBar('cCountry',countryEv,country,col);
 }
 
 function renderHosp(ev,h){
   const d=agg(ev);
+  const pd=agg(byHosp(byPrevPeriod(EVENTS),h));
   const col=HOSP_HEX[h]||'#7c5cfc';
-  const months=Object.entries(d.monthly).sort((a,b)=>b[1]-a[1]);
-  const bestM=months[0];
-  const top=d.clinics[0];
-  const mArr=Object.entries(d.monthly).sort((a,b)=>a[0].localeCompare(b[0]));
-  const half=Math.ceil(mArr.length/2);
-  const last=mArr.slice(half).reduce((s,[,v])=>s+v,0);
-  const prev=mArr.slice(0,half).reduce((s,[,v])=>s+v,0);
-  const g=prev>0?Math.round((last-prev)/prev*100):null;
-  const gs=g!==null?(g>=0?`↑ ${g}% vs prior period`:`↓ ${Math.abs(g)}% vs prior period`):'';
-  const gc=g!==null&&g>=0?'up':'dn';
 
   document.getElementById('main').innerHTML=`
-    <div class="insight">
-      <strong>${h}</strong> · ${HOSP_COUNTRY[h]||''} · <strong>${d.total}</strong> unique cases · <strong>${d.responseRate}%</strong> response rate · avg <strong>${d.avgPost}</strong> messages/case · avg <strong>${d.avgDays}</strong> days to appt <span style="color:var(--text3);font-size:11px">(${d.daysN} cases)</span>
-      ${bestM?` · Peak: <strong>${fmtMonth(bestM[0])}</strong> (${bestM[1]} events)`:''}
-      ${top?` · Top clinic: <strong>${top.name}</strong>`:''}
-    </div>
     <div class="kpis">
-      ${K('Unique cases',d.total,gs,gc)}
-      ${K('Response rate',d.responseRate+'%',d.replied+' of '+d.total,'acc')}
+      ${K('Unique cases',d.total,'','',selP?trendBadge(d.total,pd.total):'')}
+      ${K('Response rate',d.responseRate+'%',d.replied+' of '+d.total,'acc',selP?trendBadge(d.responseRate,pd.responseRate):'')}
       ${K('Avg messages',d.avgPost,'per case')}
       ${K('Avg days to appt',d.avgDays,d.daysN+' cases recorded')}
       ${K('Clinics',d.clinics.length,'referring')}
     </div>
-    <div class="card" style="margin-bottom:1rem">
-      <div class="card-ttl">Referral volume over time — ${h}</div>
-      <div class="chart-wrap" style="height:220px"><canvas id="cH" role="img" aria-label="${h} trend"></canvas></div>
+    <div class="htab-row">
+      <button class="htab active" onclick="switchHTab('overview','${h}',this)">Overview</button>
+      <button class="htab" onclick="switchHTab('momentum','${h}',this)">Clinic momentum</button>
     </div>
-    <div class="tcard">
-      <div class="tbar">
-        <span class="tbar-ttl">Referring clinics</span>
-        <select onchange="resortClinics(this.value,'${h}')">
-          <option value="n">Sort: cases ↓</option>
-          <option value="replied">Sort: replied ↓</option>
-          <option value="rate">Sort: response rate ↓</option>
-        </select>
+    <div id="htab-overview">
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-ttl">Referral volume over time — ${h}</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="cH" role="img" aria-label="${h} trend"></canvas></div>
       </div>
-      <div id="clinicTable">${clinicTbl(d.clinics,col)}</div>
+      <div class="tcard">
+        <div class="tbar">
+          <span class="tbar-ttl">Referring clinics</span>
+          <select onchange="resortClinics(this.value,'${h}')">
+            <option value="n">Sort: cases ↓</option>
+            <option value="replied">Sort: replied ↓</option>
+            <option value="rate">Sort: response rate ↓</option>
+          </select>
+        </div>
+        <div id="clinicTable">${clinicTbl(d.clinics,col,h)}</div>
+      </div>
+    </div>
+    <div id="htab-momentum" style="display:none">
+      ${momentumView(h)}
     </div>`;
   drawBar('cH',ev,h,col);
+}
+
+function switchHTab(tab,h,el){
+  document.querySelectorAll('.htab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('htab-overview').style.display=tab==='overview'?'block':'none';
+  document.getElementById('htab-momentum').style.display=tab==='momentum'?'block':'none';
+  if(tab==='momentum') renderMomentumCharts(h);
+}
+
+// ── MOMENTUM ENGINE ───────────────────────────────────────────────────────────
+function isoWeekKey(ds){
+  const d=new Date(ds);d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+4-(d.getDay()||7));
+  const y=new Date(d.getFullYear(),0,1);
+  const w=Math.ceil(((d-y)/86400000+1)/7);
+  return d.getFullYear()+'-W'+String(w).padStart(2,'0');
+}
+
+function clinicWeeklyVolume(h){
+  // Returns {clinicName: {yw: count}} for unique cases
+  const hospEv=EVENTS.filter(e=>e.hospital===h);
+  const seenCases={};
+  const result={};
+  hospEv.forEach(e=>{
+    if(seenCases[e.caseId])return;
+    seenCases[e.caseId]=1;
+    const w=isoWeekKey(e.ds);
+    if(!result[e.clinic])result[e.clinic]={};
+    result[e.clinic][w]=(result[e.clinic][w]||0)+1;
+  });
+  return result;
+}
+
+function calcMomentum(weekMap){
+  // Get sorted weeks
+  const allWeeks=Object.keys(weekMap).sort();
+  if(allWeeks.length<4)return{state:'stable',streak:0,pct:0,weeks:allWeeks,vals:allWeeks.map(w=>weekMap[w]||0)};
+
+  const vals=allWeeks.map(w=>weekMap[w]||0);
+
+  // Rolling 2-week averages: recent vs prior
+  const n=vals.length;
+  const recent=(vals[n-1]+vals[n-2])/2;
+  const prior=(vals[n-3]+vals[n-4])/2;
+
+  // Decline streak: count consecutive weeks at end with value < their 4w avg before
+  let streak=0;
+  for(let i=vals.length-1;i>=2;i--){
+    const avg4=(vals[i-1]+vals[i-2]+(vals[i-3]||0)+(vals[i-4]||0))/4;
+    if(vals[i]<avg4*0.7) streak++;
+    else break;
+  }
+
+  // Last 2 weeks zero = inactive
+  const recentZero=vals[n-1]===0&&vals[n-2]===0;
+
+  let state,pct=0;
+  if(recentZero&&n>4){state='inactive';}
+  else if(prior===0&&recent>0){state='accelerating';pct=100;}
+  else if(prior===0){state='stable';}
+  else{
+    pct=Math.round((recent-prior)/prior*100);
+    if(pct>=20)state='accelerating';
+    else if(pct<=-20)state='declining';
+    else state='stable';
+  }
+
+  return{state,streak,pct,weeks:allWeeks,vals};
+}
+
+function momPill(m){
+  if(m.state==='accelerating') return`<span class="mom-pill mom-acc">↑ Accelerating${m.pct?` +${m.pct}%`:''}</span>`;
+  if(m.state==='declining')    return`<span class="mom-pill mom-dec">↓ Declining${m.streak>1?` · ${m.streak}w streak`:''}</span>`;
+  if(m.state==='inactive')     return`<span class="mom-pill mom-dead">● Inactive</span>`;
+  return`<span class="mom-pill mom-stable">→ Stable</span>`;
+}
+
+function momentumView(h){
+  const volMap=clinicWeeklyVolume(h);
+  const clinics=Object.entries(volMap).map(([name,wm])=>({name,wm,mom:calcMomentum(wm)}));
+
+  // Sort: inactive first, then declining by streak, then stable, then accelerating
+  const order={inactive:0,declining:1,stable:2,accelerating:3};
+  clinics.sort((a,b)=>{
+    if(order[a.mom.state]!==order[b.mom.state])return order[a.mom.state]-order[b.mom.state];
+    return b.mom.streak-a.mom.streak;
+  });
+
+  const allWeeks=[...new Set(clinics.flatMap(c=>c.mom.weeks))].sort();
+  const last8=allWeeks.slice(-8);
+
+  return`<div class="tcard">
+    <div class="tbar">
+      <span class="tbar-ttl">Clinic momentum — last 8 weeks</span>
+      <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${last8[0]?fmtKey(last8[0],'week'):''} → ${last8[last8.length-1]?fmtKey(last8[last8.length-1],'week'):''}</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:28%">Clinic</th>
+        <th style="width:18%">Momentum</th>
+        <th style="width:10%" class="num">Total</th>
+        <th style="width:44%">Last 8 weeks</th>
+      </tr></thead>
+      <tbody id="momTbody">
+      ${clinics.map((c,i)=>{
+        const last8vals=last8.map(w=>c.wm[w]||0);
+        const maxV=Math.max(...last8vals,1);
+        const total=Object.values(c.wm).reduce((a,b)=>a+b,0);
+        return`<tr class="sparkrow" onclick="toggleClinicChart('cc${i}','${c.name.replace(/'/g,"\\'")}','${h}')">
+          <td style="font-weight:500;font-size:13px">${c.name}</td>
+          <td>${momPill(c.mom)}</td>
+          <td class="num" style="color:var(--text2)">${total}</td>
+          <td>
+            <div style="display:flex;align-items:flex-end;gap:3px;height:28px">
+              ${last8vals.map((v,wi)=>{
+                const pct=Math.round(v/maxV*100);
+                const isLast2=wi>=6;
+                const col=c.mom.state==='accelerating'?'#00d4aa':c.mom.state==='declining'||c.mom.state==='inactive'?'#ff5e5e':'#4a4a5a';
+                const wLabel=last8[wi]?fmtKey(last8[wi],'week'):'';
+                return`<div title="${wLabel}: ${v} case${v!==1?'s':''}" style="flex:1;height:${Math.max(pct,4)}%;background:${isLast2?col:col+'66'};border-radius:2px 2px 0 0;transition:height .2s;min-height:2px;cursor:default"></div>`;
+              }).join('')}
+            </div>
+          </td>
+        </tr>
+        <tr id="cc${i}" class="clinic-chart-row">
+          <td colspan="4" class="clinic-chart-cell">
+            <div style="height:140px;position:relative"><canvas id="ccc${i}" role="img" aria-label="${c.name} trend"></canvas></div>
+          </td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+let openClinicChart=null;
+function toggleClinicChart(rowId,clinicName,h){
+  // Close any open
+  if(openClinicChart&&openClinicChart!==rowId){
+    const prev=document.getElementById(openClinicChart);
+    if(prev)prev.classList.remove('open');
+    dest('c'+openClinicChart);
+  }
+  const row=document.getElementById(rowId);
+  if(!row)return;
+  const isOpen=row.classList.contains('open');
+  row.classList.toggle('open',!isOpen);
+  if(!isOpen){
+    openClinicChart=rowId;
+    const idx=rowId.replace('cc','');
+    drawClinicChart('ccc'+idx,clinicName,h);
+  } else {
+    openClinicChart=null;
+    dest('ccc'+rowId.replace('cc',''));
+  }
+}
+
+function drawClinicChart(canvasId,clinicName,h){
+  const volMap=clinicWeeklyVolume(h);
+  const wm=volMap[clinicName]||{};
+  const allW=Object.keys(wm).sort();
+  if(!allW.length)return;
+  const{tc,gc}=dc();
+  const vals=allW.map(w=>wm[w]||0);
+  const avg=vals.map((_,i)=>i===0?vals[0]:parseFloat(((vals[i]+vals[i-1])/2).toFixed(1)));
+  const el=document.getElementById(canvasId);if(!el)return;
+  dest(canvasId);
+  C[canvasId]=new Chart(el,{type:'bar',
+    data:{labels:allW.map(w=>fmtKey(w,'week')),datasets:[
+      {label:'Cases',data:vals,backgroundColor:'rgba(124,92,252,0.5)',borderColor:'#7c5cfc',borderWidth:1,borderRadius:3},
+      {label:'2w avg',data:avg,type:'line',borderColor:'#8a8899',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:0.3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{color:tc,font:{size:10},boxWidth:8,padding:12}},
+        tooltip:{callbacks:{
+          title:items=>`${items[0].label}`,
+          label:item=>`  ${item.dataset.label}: ${item.raw}${item.datasetIndex===0?' cases':''}`
+        }}
+      },
+      scales:{
+        x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
+        y:{ticks:{color:tc,font:{size:10}},grid:{color:gc},beginAtZero:true,precision:0}
+      }
+    }
+  });
+}
+
+function renderMomentumCharts(h){
+  // Charts render on demand via toggleClinicChart
 }
 
 function resortClinics(by,h){
@@ -798,26 +1348,35 @@ function resortClinics(by,h){
   let cl=[...d.clinics];
   if(by==='replied')cl.sort((a,b)=>b.replied-a.replied);
   else if(by==='rate')cl.sort((a,b)=>(b.n>0?b.replied/b.n:0)-(a.n>0?a.replied/a.n:0));
-  document.getElementById('clinicTable').innerHTML=clinicTbl(cl,col);
+  document.getElementById('clinicTable').innerHTML=clinicTbl(cl,col,h);
 }
 
-function clinicTbl(clinics,col){
+function clinicTbl(clinics,col,hospName){
   if(!clinics.length)return'<div class="empty">No data for this period</div>';
   const max=clinics[0].n;
+
+  // Calculate active weeks per clinic from EVENTS
+  const volMap=hospName?clinicWeeklyVolume(hospName):{};
+
   return`<table><thead><tr>
-    <th style="width:38%">Clinic</th>
-    <th class="num" style="width:13%">Cases</th>
-    <th class="num" style="width:12%">Replied</th>
-    <th style="width:37%">Response rate</th>
+    <th style="width:32%">Clinic</th>
+    <th class="num" style="width:11%">Cases</th>
+    <th class="num" style="width:13%">Avg/week</th>
+    <th class="num" style="width:11%">Replied</th>
+    <th style="width:33%">Response rate</th>
   </tr></thead><tbody>
   ${clinics.map((c,i)=>{
     const r=c.n>0?Math.round(c.replied/c.n*100):0;
+    const wm=volMap[c.name]||{};
+    const activeWeeks=Object.keys(wm).length||1;
+    const avgWeek=(c.n/activeWeeks).toFixed(1);
     return`<tr>
       <td><div style="display:flex;align-items:center;gap:10px">
         <span class="rank">${i+1}</span>
         <span style="font-weight:500">${c.name}</span>
       </div></td>
       <td class="num">${c.n}</td>
+      <td class="num" style="color:var(--accent2);font-family:'DM Mono',monospace">${avgWeek}</td>
       <td class="num" style="color:var(--text2)">${c.replied}</td>
       <td><div style="display:flex;align-items:center;gap:10px">
         <div class="bar-bg" style="flex:1"><div class="bar-fill" style="width:${Math.round(c.n/max*100)}%;background:${col}"></div></div>
@@ -868,11 +1427,11 @@ function renderCompare(pev){
     <div class="g2">
       <div class="tcard">
         <div class="tbar"><span class="tbar-ttl" style="color:${c1}">${h1} · Top clinics</span></div>
-        ${clinicTbl(d1.clinics.slice(0,8),c1)}
+        ${clinicTbl(d1.clinics.slice(0,8),c1,h1)}
       </div>
       <div class="tcard">
         <div class="tbar"><span class="tbar-ttl" style="color:${c2}">${h2} · Top clinics</span></div>
-        ${clinicTbl(d2.clinics.slice(0,8),c2)}
+        ${clinicTbl(d2.clinics.slice(0,8),c2,h2)}
       </div>
     </div>`;
   drawCompare('cCmp',e1,e2,h1,h2,c1,c2);
@@ -883,28 +1442,66 @@ function dc(){return{tc:'#4a4a5a',gc:'rgba(255,255,255,0.04)'};}
 function dest(id){if(C[id]){C[id].destroy();delete C[id];}}
 function fmtMonth(m){const[y,mo]=m.split('-');return['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo]+' \''+y.slice(2);}
 
-function monthBuckets(ev){
-  const m={},seen={};
-  ev.forEach(e=>{const k=e.ds.slice(0,7);if(!seen[e.caseId]){seen[e.caseId]=1;m[k]=(m[k]||0)+1;}});
-  return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));
+function granularity(){
+  if(selP===7||selP===30)return'day';
+  if(selP===90)return'week';
+  return'month';
 }
+
+function bucketKey(ds,gran){
+  if(gran==='day')return ds;
+  if(gran==='week'){
+    const d=new Date(ds);d.setHours(0,0,0,0);
+    d.setDate(d.getDate()+4-(d.getDay()||7));
+    const y=new Date(d.getFullYear(),0,1);
+    const w=Math.ceil(((d-y)/86400000+1)/7);
+    return d.getFullYear()+'-W'+String(w).padStart(2,'0');
+  }
+  return ds.slice(0,7);
+}
+
+function fmtKey(k,gran){
+  if(gran==='day'){const d=new Date(k);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+  if(gran==='week'){
+    const[y,w]=k.split('-W');
+    const jan4=new Date(+y,0,4);
+    const start=new Date(jan4);
+    start.setDate(jan4.getDate()-(jan4.getDay()||7)+1+(+w-1)*7);
+    return start.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  }
+  return fmtMonth(k);
+}
+
+function eventBuckets(ev){
+  const gran=granularity(),m={},seen={};
+  ev.forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;const k=bucketKey(e.ds,gran);m[k]=(m[k]||0)+1;}});
+  return{entries:Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0])),gran};
+}
+
+function chartType(){return'line';}
 
 function drawAllBar(id,pev){
   dest(id);const el=document.getElementById(id);if(!el)return;
-  const{tc,gc}=dc();
-  const allM=[...new Set(pev.map(e=>e.ds.slice(0,7)))].sort();
+  const{tc,gc}=dc(),gran=granularity();
+  const allK=[...new Set(pev.map(e=>bucketKey(e.ds,gran)))].sort();
   const hospCounts={};
   HOSPS.forEach(h=>{
     const seen={};
-    hospCounts[h]=allM.map(m=>{
+    hospCounts[h]=allK.map(k=>{
       let n=0;
-      pev.filter(e=>e.hospital===h&&e.ds.startsWith(m)).forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;n++;}});
+      pev.filter(e=>e.hospital===h&&bucketKey(e.ds,gran)===k).forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;n++;}});
       return n;
     });
   });
-  const totals=allM.map((_,i)=>HOSPS.reduce((s,h)=>s+hospCounts[h][i],0));
-  C[id]=new Chart(el,{type:'bar',
-    data:{labels:allM.map(fmtMonth),datasets:[{label:'Total',data:totals,backgroundColor:'rgba(124,92,252,0.25)',borderColor:'#7c5cfc',borderWidth:1.5,borderRadius:4}]},
+  const totals=allK.map((_,i)=>HOSPS.reduce((s,h)=>s+hospCounts[h][i],0));
+  const isLine=chartType()==='line';
+  C[id]=new Chart(el,{type:isLine?'line':'bar',
+    data:{labels:allK.map(k=>fmtKey(k,gran)),datasets:[{
+      label:'Total',data:totals,
+      backgroundColor:isLine?'rgba(124,92,252,0.12)':'rgba(124,92,252,0.25)',
+      borderColor:'#7c5cfc',borderWidth:1.5,borderRadius:isLine?0:4,
+      fill:isLine,tension:0.35,pointRadius:isLine?3:0,pointBackgroundColor:'#7c5cfc'
+    }]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{
         title:items=>`${items[0].label}  ·  ${totals[items[0].dataIndex]} cases`,
@@ -917,9 +1514,16 @@ function drawAllBar(id,pev){
 
 function drawBar(id,ev,label,col){
   dest(id);const el=document.getElementById(id);if(!el)return;
-  const{tc,gc}=dc(),bkts=monthBuckets(ev);
-  C[id]=new Chart(el,{type:'bar',
-    data:{labels:bkts.map(([m])=>fmtMonth(m)),datasets:[{label,data:bkts.map(([,v])=>v),backgroundColor:col+'44',borderColor:col,borderWidth:1.5,borderRadius:4}]},
+  const{tc,gc}=dc();
+  const{entries,gran}=eventBuckets(ev);
+  const isLine=chartType()==='line';
+  C[id]=new Chart(el,{type:isLine?'line':'bar',
+    data:{labels:entries.map(([k])=>fmtKey(k,gran)),datasets:[{
+      label,data:entries.map(([,v])=>v),
+      backgroundColor:isLine?col+'18':col+'44',
+      borderColor:col,borderWidth:1.5,borderRadius:isLine?0:4,
+      fill:isLine,tension:0.35,pointRadius:isLine?3:0,pointBackgroundColor:col
+    }]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
               y:{ticks:{color:tc,font:{size:11}},grid:{color:gc},beginAtZero:true}}}});
@@ -966,50 +1570,196 @@ function drawRegion(id,pev){
 
 function drawCompare(id,e1,e2,l1,l2,c1,c2){
   dest(id);const el=document.getElementById(id);if(!el)return;
-  const{tc,gc}=dc();
-  const allM=[...new Set([...e1,...e2].map(e=>e.ds.slice(0,7)))].sort();
-  const cnt=(ev,m)=>{const s={};ev.filter(e=>e.ds.startsWith(m)).forEach(e=>s[e.caseId]=1);return Object.keys(s).length;};
-  C[id]=new Chart(el,{type:'bar',
-    data:{labels:allM.map(fmtMonth),datasets:[
-      {label:l1,data:allM.map(m=>cnt(e1,m)),backgroundColor:c1+'33',borderColor:c1,borderWidth:1.5,borderRadius:4},
-      {label:l2,data:allM.map(m=>cnt(e2,m)),backgroundColor:c2+'33',borderColor:c2,borderWidth:1.5,borderRadius:4}]},
+  const{tc,gc}=dc(),gran=granularity();
+  const allK=[...new Set([...e1,...e2].map(e=>bucketKey(e.ds,gran)))].sort();
+  const cnt=(ev,k)=>{const s={};ev.filter(e=>bucketKey(e.ds,gran)===k).forEach(e=>s[e.caseId]=1);return Object.keys(s).length;};
+  const isLine=chartType()==='line';
+  const mkDs=(label,ev,col)=>({label,data:allK.map(k=>cnt(ev,k)),backgroundColor:col+(isLine?'18':'33'),borderColor:col,borderWidth:1.5,borderRadius:isLine?0:4,fill:false,tension:0.35,pointRadius:isLine?3:0,pointBackgroundColor:col});
+  C[id]=new Chart(el,{type:isLine?'line':'bar',
+    data:{labels:allK.map(k=>fmtKey(k,gran)),datasets:[mkDs(l1,e1,c1),mkDs(l2,e2,c2)]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{color:tc,font:{size:11},boxWidth:10,padding:8}}},
       scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{display:false}},
               y:{ticks:{color:tc,font:{size:11}},grid:{color:gc},beginAtZero:true}}}});
 }
 
-function K(label,val,sub,cls=''){
-  return`<div class="kpi"><div class="kpi-lbl">${label}</div><div class="kpi-val">${val}</div>${sub?`<div class="kpi-sub ${cls}">${sub}</div>`:''}</div>`;
+function K(label,val,sub,cls='',trend=''){
+  return`<div class="kpi">
+    <div class="kpi-lbl">${label}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-sub ${cls}">${sub||''}</div>
+    <div class="kpi-badge">${trend}</div>
+  </div>`;
+}
+
+function exportCSV(){
+  const pev=byPeriod(EVENTS);
+  const ev=selH==='all'?pev:byHosp(pev,selH);
+  const seen={};const rows=[['Case ID','Clinic','Hospital','Region','Date','Messages','Days to appt']];
+  ev.forEach(e=>{
+    if(!seen[e.caseId]){
+      seen[e.caseId]=1;
+      rows.push([e.caseId,e.clinic,e.hospital,e.region,e.ds,e.post??'',e.days??'']);
+    }
+  });
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`arqena-export-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function parseCSVText(text){
+  const lines=text.trim().split('\n');
+  const hdr=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  const ci=hdr.indexOf('case_organization_name'),hi=hdr.indexOf('contributor_organization_name');
+  const ri=hdr.indexOf('Region'),li=hdr.indexOf('is_lost'),di=hdr.indexOf('days_to_appt'),ti=hdr.indexOf('referral_sent_at_utc'),pi=hdr.indexOf('post_count'),ki=hdr.indexOf('case_id');
+  if(ci<0||hi<0)return null;
+  const events=[];
+  lines.slice(1).forEach(l=>{
+    const v=l.split(',').map(x=>x.trim().replace(/"/g,''));
+    const ds=(v[ti]||'').slice(0,10);
+    if(ds&&v[ci]&&v[hi])events.push({
+      date:new Date(ds),ds,clinic:v[ci],hospital:v[hi],region:v[ri]||'',
+      lost:v[li]==='0'?0:1,
+      days:parseFloat((v[di]||'').replace(',','.'))||null,
+      post:parseInt(v[pi])||null,
+      caseId:parseInt(v[ki])||null
+    });
+  });
+  return events;
+}
+
+function applyEvents(events){
+  EVENTS.length=0;
+  events.forEach(e=>EVENTS.push({...e,date:new Date(e.ds)}));
+  HOSPS.length=0;
+  [...new Set(EVENTS.map(e=>e.hospital))].sort().forEach(h=>HOSPS.push(h));
+  selH='all';selCountry='all';buildPills();render();
+  updateLastUpdated();
+}
+
+function updateLastUpdated(){
+  const maxD=new Date(Math.max(...EVENTS.map(e=>e.date)));
+  const el=document.getElementById('lastUpdated');
+  if(el)el.textContent='Last updated: '+maxD.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 
 function handleFile(e){
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
   r.onload=ev=>{
-    const lines=ev.target.result.trim().split('\n');
-    const hdr=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
-    const ci=hdr.indexOf('case_organization_name'),hi=hdr.indexOf('contributor_organization_name');
-    const ri=hdr.indexOf('Region'),li=hdr.indexOf('is_lost'),di=hdr.indexOf('days_to_appt'),ti=hdr.indexOf('referral_sent_at_utc'),pi=hdr.indexOf('post_count'),ki=hdr.indexOf('case_id');
-    if(ci<0||hi<0){alert('Required columns not found.');return;}
-    EVENTS.length=0;
-    lines.slice(1).forEach(l=>{
-      const v=l.split(',').map(x=>x.trim().replace(/"/g,''));
-      const ds=(v[ti]||'').slice(0,10);
-      if(ds&&v[ci]&&v[hi])EVENTS.push({
-        date:new Date(ds),ds,clinic:v[ci],hospital:v[hi],region:v[ri]||'',
-        lost:v[li]==='0'?0:1,
-        days:parseFloat((v[di]||'').replace(',','.'))||null,
-        post:parseInt(v[pi])||null,
-        caseId:parseInt(v[ki])||null
-      });
-    });
-    HOSPS.length=0;
-    [...new Set(EVENTS.map(e=>e.hospital))].sort().forEach(h=>HOSPS.push(h));
-    selH='all';buildPills();render();
+    const events=parseCSVText(ev.target.result);
+    if(!events){alert('Required columns not found.');return;}
+    try{localStorage.setItem('arqena_csv',ev.target.result);
+        localStorage.setItem('arqena_csv_date',new Date().toISOString());}
+    catch(err){console.warn('localStorage unavailable');}
+    applyEvents(events);
   };
   r.readAsText(file);
 }
+
+// ── AI CHAT ───────────────────────────────────────────────────────────────────
+let chatHistory=[];
+
+function toggleChat(){
+  const panel=document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')&&chatHistory.length===0){
+    addChatMsg('assistant','Hi! I can answer questions about your referral data. Try asking about volume, trends or clinic comparisons.');
+  }
+}
+
+function saveApiKey(){} // no longer needed
+
+function buildDataContext(){
+  const pev=byPeriod(EVENTS);
+  const td=agg(pev);
+  const hospData=HOSPS.map(h=>{
+    const d=agg(byHosp(pev,h));
+    const wm=clinicWeeklyVolume(h);
+    const clinicMom=Object.entries(wm).map(([name,wkmap])=>{
+      const m=calcMomentum(wkmap);
+      return{name,total:Object.values(wkmap).reduce((a,b)=>a+b,0),momentum:m.state,streak:m.streak};
+    }).sort((a,b)=>b.total-a.total);
+    return{hospital:h,region:getRegion(h),cases:d.total,responseRate:d.responseRate+'%',avgMessages:d.avgPost,avgDaysToAppt:d.avgDays,clinics:d.clinics.length,clinicDetail:clinicMom};
+  });
+  const seen={},wMap={};
+  EVENTS.forEach(e=>{if(!seen[e.caseId]){seen[e.caseId]=1;const w=isoWeekKey(e.ds);wMap[w]=(wMap[w]||0)+1;}});
+  const weeklyTotals=Object.entries(wMap).sort((a,b)=>a[0].localeCompare(b[0])).slice(-12).map(([w,v])=>({week:w,cases:v}));
+  return{period:document.getElementById('periodLbl').textContent||'All time',selectedHospital:selH==='all'?'All hospitals':selH,totalUniqueCases:td.total,totalResponseRate:td.responseRate+'%',hospitals:hospData,weeklyVolume:weeklyTotals,dataRange:document.getElementById('footerDate').textContent};
+}
+
+function addChatMsg(role,text){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');
+  div.className='chat-msg '+role;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function onChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function askSuggestion(el){
+  document.getElementById('chatInput').value=el.textContent;
+  document.getElementById('chatSuggestions').style.display='none';
+  sendChat();
+}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const question=input.value.trim();
+  if(!question)return;
+  input.value='';
+  document.getElementById('chatSend').disabled=true;
+  document.getElementById('chatSuggestions').style.display='none';
+  addChatMsg('user',question);
+  const thinking=addChatMsg('thinking','Thinking...');
+  chatHistory.push({role:'user',content:question});
+
+  const sys=`You are an AI assistant in Arqena's internal veterinary referral dashboard. Answer questions based on this live data:\n\n${JSON.stringify(buildDataContext(),null,2)}\n\nBe concise — 2-4 sentences max unless detail is requested. Use specific numbers. Respond in the same language the user writes in.`;
+
+  try{
+    const res=await fetch('/.netlify/functions/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:sys,messages:chatHistory})
+    });
+    const data=await res.json();
+    thinking.remove();
+    if(data.error){addChatMsg('assistant','Error: '+data.error.message);chatHistory.pop();}
+    else{
+      const reply=data.content[0].text;
+      addChatMsg('assistant',reply);
+      chatHistory.push({role:'assistant',content:reply});
+      if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
+    }
+  }catch(err){
+    thinking.remove();
+    addChatMsg('assistant','Something went wrong. Try again.');
+    chatHistory.pop();
+  }
+  document.getElementById('chatSend').disabled=false;
+  document.getElementById('chatInput').focus();
+}
+</script>
+</div><!-- /appShell -->
+
+<script>
+const PW='arqena2026';
+function checkPw(){
+  const v=document.getElementById('pwInput').value;
+  if(v===PW){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('appShell').style.display='block';
+  } else {
+    document.getElementById('pwErr').textContent='Incorrect password';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+  }
+}
+document.getElementById('pwInput').focus();
 </script>
 </body>
 </html>
