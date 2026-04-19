@@ -1003,15 +1003,17 @@ function renderAll(pev){
           ${hospsInCountry.map(h=>{
             const d=agg(byHosp(pev,h));
             const col=HOSP_HEX[h]||'#7c5cfc';
-            const pulse2=calcHospPulse(h);
             const weekAvg=calcHospWeeklyAvg(h);
+            const last8=calcHospLast8(h);
+            const recent2=last8.slice(-4).reduce((a,b)=>a+b,0);
+            const prior2=last8.slice(0,4).reduce((a,b)=>a+b,0);
+            const wowPct=prior2>0?Math.round((recent2-prior2)/prior2*100):null;
+            const wowStr=wowPct!==null?(wowPct>0?`+${wowPct}%`:wowPct<0?`${wowPct}%`:'flat'):null;
+            const wowCol=wowPct===null?'var(--text3)':wowPct>15?'#00d4aa':wowPct<-15?'#ff5e5e':'var(--text3)';
             return`<div class="hcard" onclick="selHosp('${h}')">
               <span class="open-arrow">Open →</span>
               <div class="hcard-name">${h}</div>
-              <div class="hcard-sub" style="display:flex;align-items:center;gap:8px">
-                <span>${country}</span>
-                <span class="mom-pill ${pulse2.state==='accelerating'?'mom-acc':pulse2.state==='declining'?'mom-dec':'mom-stable'}" style="font-size:10px;padding:2px 7px">${pulse2.state==='accelerating'?'↑ Accel':pulse2.state==='declining'?'↓ Declining':'→ Stable'}</span>
-              </div>
+              <div class="hcard-sub" style="color:var(--text3)">${country}</div>
               <div class="hcard-metrics" style="grid-template-columns:repeat(4,1fr)">
                 ${[['Cases',d.total],['Avg/wk',weekAvg],['Response',d.responseRate+'%'],['Clinics',d.clinics.length]].map(([l,v])=>`
                   <div>
@@ -1019,12 +1021,17 @@ function renderAll(pev){
                     <div class="hcard-metric-val">${v}</div>
                   </div>`).join('')}
               </div>
-              <div style="font-size:10px;color:var(--text3);margin-bottom:5px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em">Weekly volume — last 8w</div>
-              <div style="display:flex;align-items:flex-end;gap:2px;height:24px">
-                ${calcHospLast8(h).map((v,i)=>{
-                  const maxV=Math.max(...calcHospLast8(h),1);
+              <div style="display:flex;align-items:flex-end;gap:2px;height:24px;margin-bottom:8px">
+                ${last8.map((v,i)=>{
+                  const maxV=Math.max(...last8,1);
                   return`<div title="${fmtKey(periodWeeks.slice(-8)[i]||'','week')}: ${v}" style="flex:1;height:${Math.max(Math.round(v/maxV*100),4)}%;background:${i>=6?col:col+'55'};border-radius:1px 1px 0 0;min-height:1px"></div>`;
                 }).join('')}
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">
+                  Last 4w vs prior 4w: <span style="color:${wowCol};font-weight:500">${wowStr||'–'}</span>
+                </div>
+                <div style="font-size:10px;color:var(--text3)">Clinic breakdown →</div>
               </div>
             </div>`;
           }).join('')}
@@ -1696,7 +1703,15 @@ function addChatMsg(role,text){
   const msgs=document.getElementById('chatMessages');
   const div=document.createElement('div');
   div.className='chat-msg '+role;
-  div.textContent=text;
+  if(role==='assistant'){
+    // Render line breaks and bullet points
+    div.innerHTML=text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\n/g,'<br>')
+      .replace(/•\s*/g,'<span style="color:var(--accent2);font-weight:500">•</span> ');
+  } else {
+    div.textContent=text;
+  }
   msgs.appendChild(div);
   msgs.scrollTop=msgs.scrollHeight;
   return div;
@@ -1720,7 +1735,7 @@ async function sendChat(){
   const thinking=addChatMsg('thinking','Thinking...');
   chatHistory.push({role:'user',content:question});
 
-  const sys=`You are an AI assistant in Arqena's internal veterinary referral dashboard. Answer questions based on this live data:\n\n${JSON.stringify(buildDataContext(),null,2)}\n\nBe concise — 2-4 sentences max unless detail is requested. Use specific numbers. Respond in the same language the user writes in.`;
+  const sys=`You are an AI assistant in Arqena's internal veterinary referral dashboard. Answer questions based on this live data:\n\n${JSON.stringify(buildDataContext(),null,2)}\n\nFormatting rules:\n- Always respond in the same language the user writes in\n- Keep answers concise but structured\n- When presenting data points, use short bullet lines: "• Vetsia: 283 cases"\n- Lead with the direct answer/number, then context below\n- If comparing multiple hospitals or clinics, use a simple list format\n- Bold key numbers by wrapping in ** (e.g. **283 cases**) — but since this is plain text, just put the number first on its own line\n- Max 6 bullet points — if more, summarize the rest\n- Never write long prose paragraphs when data is involved\n- Example good response:\n  Vetsia had 12 cases last week.\n  • W14: 6 cases\n  • W15: 6 cases\n  Top clinic: CV Parque Oeste (3 cases)`;
 
   try{
     const res=await fetch('/.netlify/functions/chat',{
